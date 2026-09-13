@@ -54,13 +54,17 @@ export function Sidebar({ variant = "desktop" }: SidebarProps) {
             : "hidden lg:flex",
         )}
       >
-        <div className="flex h-14 items-center justify-between px-5 border-b border-[var(--sidebar-border)]">
-          <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--sidebar-primary)] text-[var(--sidebar-primary-foreground)]">
-              <Building2 className="h-4 w-4" />
-            </div>
-            <span className="font-display text-base font-semibold tracking-tight">
-              Hostel Manager
+        <div className="flex h-14 items-center justify-between px-4 border-b border-[var(--sidebar-border)]">
+          <div className="flex items-center gap-2.5">
+            <img
+              src="/nomads-logo.svg"
+              alt="Nomads Boys Hostel logo"
+              className="h-8 w-8 shrink-0"
+            />
+            <span className="font-display text-[12px] font-semibold leading-tight tracking-tight">
+              NOMADS
+              <br />
+              BOYS HOSTEL
             </span>
           </div>
           {isDrawer && (
@@ -98,7 +102,7 @@ export function Sidebar({ variant = "desktop" }: SidebarProps) {
 
         <div className="border-t border-[var(--sidebar-border)] p-4 text-xs text-[var(--muted-foreground)]">
           <p className="font-medium text-[var(--sidebar-foreground)]">v1.0</p>
-          <p>Phase 1 & 2 build</p>
+          <p>Nomads Boys Hostel</p>
         </div>
       </aside>
     </>

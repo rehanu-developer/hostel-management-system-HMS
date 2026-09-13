@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Outer navy circle -->
+  <circle cx="50" cy="50" r="48" fill="#1a2c7e"/>
+
+  <!-- Red sun/roof semicircle behind house -->
+  <path d="M 18 52 A 32 32 0 0 1 82 52 Z" fill="#e63946"/>
+
+  <!-- Chimney -->
+  <rect x="34" y="42" width="7" height="11" fill="#ffffff"/>
+
+  <!-- House body (white) -->
+  <path d="M 28 53 L 28 76 L 72 76 L 72 53 L 64 53 L 64 50 L 56 50 L 56 53 L 44 53 L 44 50 L 36 50 L 36 53 Z" fill="#ffffff"/>
+
+  <!-- Inner navy windows: 2x2 grid -->
+  <rect x="36" y="60" width="9" height="9" rx="0.5" fill="#1a2c7e"/>
+  <rect x="55" y="60" width="9" height="9" rx="0.5" fill="#1a2c7e"/>
+  <rect x="36" y="69" width="9" height="5" rx="0.5" fill="#1a2c7e"/>
+  <rect x="55" y="69" width="9" height="5" rx="0.5" fill="#1a2c7e"/>
+</svg>
