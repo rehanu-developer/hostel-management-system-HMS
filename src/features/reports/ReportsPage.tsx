@@ -21,10 +21,9 @@ import { OverviewReport } from "./OverviewReport"
 import { OccupancyReport } from "./OccupancyReport"
 import { StudentsReport } from "./StudentsReport"
 import { VisitorsReport } from "./VisitorsReport"
-import { FinancialReport } from "./FinancialReport"
 import { exportToExcel, exportToPDF, type ExportColumn } from "./export"
 
-type ReportTab = "overview" | "occupancy" | "students" | "visitors" | "financial"
+type ReportTab = "overview" | "occupancy" | "students" | "visitors"
 
 interface ExportPayload<T = unknown> {
   rows: T[]
@@ -115,7 +114,6 @@ export function ReportsPage() {
             <TabsTrigger value="occupancy">Occupancy</TabsTrigger>
             <TabsTrigger value="students">Students</TabsTrigger>
             <TabsTrigger value="visitors">Visitors</TabsTrigger>
-            <TabsTrigger value="financial">Financial</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
@@ -132,10 +130,6 @@ export function ReportsPage() {
 
           <TabsContent value="visitors" className="space-y-4">
             <VisitorsReport onExportReady={handleExportReady} />
-          </TabsContent>
-
-          <TabsContent value="financial" className="space-y-4">
-            <FinancialReport onExportReady={handleExportReady} />
           </TabsContent>
         </Tabs>
       </div>

@@ -1,5 +1,8 @@
 import { useMemo, useState } from "react"
 import {
+  ChevronLeft,
+  ChevronRight,
+  Download,
   Eye,
   Plus,
   Search,
@@ -48,7 +51,7 @@ import { FinanceFilters as FinanceFiltersBar } from "./FinanceFilters"
 import { PaymentDetailSheet } from "./PaymentDetailSheet"
 import { StudentFinanceSheet } from "./StudentFinanceSheet"
 import { RecordPaymentSheet } from "./RecordPaymentSheet"
-import { currentMonthKey } from "@/lib/utils"
+import { currentMonthKey, formatDate } from "@/lib/utils"
 import { paymentStatusVariant } from "@/components/ui/badgeVariants"
 
 export function FinancePage() {
@@ -74,6 +77,18 @@ export function FinancePage() {
   >(null)
   const [recordOpen, setRecordOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  // Pagination
+  const PAGE_SIZE = 10
+  const [page, setPage] = useState(1)
+  const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE))
+  const pageRows = useMemo(
+    () => rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [rows, page],
+  )
+  // Reset to page 1 whenever filters change the result set
+  useMemo(() => {
+    setPage(1)
+  }, [filters])
 
   // First-load skeleton
   useMemo(() => {
@@ -190,10 +205,25 @@ export function FinancePage() {
         title="Finance"
         description="Manage student fees, visitor payments, outstanding balances and financial records across all hostels."
         actions={
-          <Button onClick={() => setRecordOpen(true)}>
-            <Plus className="h-3.5 w-3.5" />
-            Record Payment
-          </Button>
+          <>
+            <Button
+              variant="outline"
+              onClick={() => {
+                exportFinanceRowsToCSV(rows, settings.currency)
+                toast.success(
+                  `Exported ${rows.length} finance record${rows.length === 1 ? "" : "s"}`,
+                )
+              }}
+              disabled={rows.length === 0}
+            >
+              <Download className="h-3.5 w-3.5" />
+              Export
+            </Button>
+            <Button onClick={() => setRecordOpen(true)}>
+              <Plus className="h-3.5 w-3.5" />
+              Record Payment
+            </Button>
+          </>
         }
       />
 
@@ -229,11 +259,11 @@ export function FinancePage() {
           <Table className="table-fixed">
             <colgroup>
               <col className="w-[200px] pl-6" />
-              <col />
-              <col className="w-[110px]" />
-              <col className="w-[150px]" />
               <col className="w-[140px]" />
-              <col className="w-[80px] pr-6" />
+              <col className="w-[90px]" />
+              <col className="w-[150px]" />
+              <col className="w-[120px]" />
+              <col className="w-[152px] pr-6" />
             </colgroup>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
@@ -284,7 +314,7 @@ export function FinancePage() {
                   </TableCell>
                 </TableRow>
               ) : (
-                rows.map((r) => {
+                pageRows.map((r) => {
                   const isAccommodation = r.type === "accommodation"
                   const isIndependent =
                     r.type === "visitor" && r.kind === "independent"
@@ -315,7 +345,9 @@ export function FinancePage() {
                         </div>
                       </TableCell>
                       <TableCell className="text-[14px] text-[var(--muted-foreground)]">
-                        {r.hostelName}
+                        <span className="block truncate" title={r.hostelName}>
+                          {r.hostelName}
+                        </span>
                       </TableCell>
                       <TableCell className="whitespace-nowrap text-[14px] text-[var(--muted-foreground)]">
                         {isIndependent ? "—" : `Room ${r.roomNumber}`}
@@ -364,11 +396,47 @@ export function FinancePage() {
 
         <div className="flex items-center justify-between text-xs text-[var(--muted-foreground)]">
           <span>
-            Showing {rows.length} of {allRows.length} financial records
+            {rows.length === 0
+              ? "No records"
+              : `Showing ${(page - 1) * PAGE_SIZE + 1}–${Math.min(
+                  page * PAGE_SIZE,
+                  rows.length,
+                )} of ${rows.length} financial records`}
           </span>
-          {filters.month === "all" && (
-            <span>Current billing month: {currentMonthKey()}</span>
-          )}
+          <div className="flex items-center gap-3">
+            {filters.month === "all" && (
+              <span>Current billing month: {currentMonthKey()}</span>
+            )}
+            <div className="flex items-center gap-1">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-7 px-2 text-xs"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                aria-label="Previous page"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" />
+                Prev
+              </Button>
+              <span className="px-1 tabular-nums">
+                {page} / {totalPages}
+              </span>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-7 px-2 text-xs"
+                disabled={page >= totalPages}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                aria-label="Next page"
+              >
+                Next
+                <ChevronRight className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -433,9 +501,9 @@ function RowActions({
 }) {
   const navigate = useNavigate()
   const btnBase =
-    "inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+    "inline-flex h-7 w-7 items-center justify-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
   return (
-    <div className="flex items-center justify-end gap-1.5">
+    <div className="flex items-center justify-end gap-1">
       <Tooltip>
         <TooltipTrigger asChild>
           <button
@@ -538,4 +606,66 @@ function EmptyState({
       )}
     </div>
   )
+}
+
+function exportFinanceRowsToCSV(rows: FinanceRow[], currency: string) {
+  const headers = [
+    "Student",
+    "Student ID",
+    "Type",
+    "Hostel",
+    "Room",
+    "Visitor (if any)",
+    "Description",
+    "Month",
+    "Amount",
+    "Paid",
+    "Remaining",
+    "Status",
+    "Paid Date",
+  ]
+  const escape = (v: string | number | null | undefined) => {
+    if (v === null || v === undefined) return ""
+    const s = String(v)
+    if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`
+    return s
+  }
+  const dataRows = rows.map((r) => {
+    const isAccommodation = r.type === "accommodation"
+    const typeLabel = isAccommodation
+      ? "Accommodation"
+      : r.kind === "independent"
+        ? "Independent Visitor"
+        : "Visitor Stay"
+    const room = isAccommodation ? `Room ${r.roomNumber}` : "—"
+    const visitor = isAccommodation ? "" : r.visitorName
+    return [
+      r.studentName,
+      r.studentCode,
+      typeLabel,
+      r.hostelName,
+      room,
+      visitor,
+      r.description,
+      r.month,
+      r.amount,
+      r.paid,
+      r.remaining,
+      r.status,
+      r.paidDate ? formatDate(r.paidDate) : "",
+    ]
+  })
+  void currency
+  const csv = [headers, ...dataRows]
+    .map((r) => r.map(escape).join(","))
+    .join("\n")
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.download = `finance-${new Date().toISOString().slice(0, 10)}.csv`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
 }
