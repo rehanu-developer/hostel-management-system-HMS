@@ -456,13 +456,17 @@ export function RecordPaymentSheet({
                           <div className="flex items-center gap-2">
                             <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
                             <span className="font-medium">{selectedVisitor.name}</span>
-                            <Badge variant="info-soft" className="text-[10px]">
-                              Visitor Stay
+                            <Badge
+                              variant={selectedVisitor.kind === "independent" ? "warning-soft" : "info-soft"}
+                              className="text-[10px]"
+                            >
+                              {selectedVisitor.kind === "independent" ? "Independent" : "Visitor Stay"}
                             </Badge>
                           </div>
                           <div className="mt-1 text-[var(--muted-foreground)]">
-                            Responsible: {responsibleStudent?.name ?? "—"} ·{" "}
-                            {visitorHostel?.name} / Room {visitorRoom?.number}
+                            {selectedVisitor.kind === "independent"
+                              ? `${hostels.find((h) => h.id === selectedVisitor.hostelId)?.name ?? "—"} · Self-pay (no student)`
+                              : `Responsible: ${responsibleStudent?.name ?? "—"} · ${visitorHostel?.name} / Room ${visitorRoom?.number}`}
                           </div>
                           <div className="mt-1 text-[var(--muted-foreground)]">
                             Total charge: {formatCurrency(selectedVisitor.total, currency)} · Paid:{" "}

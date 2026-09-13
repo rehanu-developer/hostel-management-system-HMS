@@ -3,6 +3,7 @@ export type PaymentStatus = "Paid" | "Pending" | "Partially Paid" | "Outstanding
 export type Relationship = "Friend" | "Family Member" | "Other" | null
 export type VisitorStatus = "Currently Visiting" | "Checked Out"
 export type PaymentType = "accommodation" | "visitor"
+export type VisitorKind = "linked" | "independent"
 
 export interface Hostel {
   id: string
@@ -70,9 +71,19 @@ export interface Visitor {
   name: string
   phone: string
   cnic: string
-  studentId: string // hostel member being visited
-  roomId: string // derived from student's current room
+  /**
+   * Linked visitor: the hostel member being visited (required).
+   * Independent visitor: undefined — the visitor is financially responsible for themselves.
+   */
+  studentId?: string
+  /** Required for independent visitors (and always set, even for linked). */
+  hostelId: string
+  /** For linked visitors, derived from student's current room. For independent, optional. */
+  roomId?: string
+  /** Linked visitors must carry a relationship to the student. Independent may use "Other". */
   relationship: Relationship
+  /** Linked = assigned to a student (student pays). Independent = self-pay. */
+  kind: VisitorKind
   checkIn: string // ISO datetime
   expectedCheckOut: string // ISO datetime
   actualCheckOut?: string // ISO datetime — present when checked out
@@ -93,6 +104,12 @@ export interface RoomHistoryEntry {
   from: string
   to?: string
   reason?: string // optional, e.g. "Room change"
+  /**
+   * The negotiated monthly price for THIS room assignment.
+   * Falls back to room.monthlyPrice when not provided.
+   * Different students in the same room may have different agreed prices.
+   */
+  agreedMonthlyPrice?: number
 }
 
 export interface Settings {

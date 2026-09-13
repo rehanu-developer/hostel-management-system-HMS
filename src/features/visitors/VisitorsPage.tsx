@@ -112,7 +112,9 @@ export function Visitors() {
     name: string
     phone: string
     cnic: string
-    studentId: string
+    studentId?: string
+    hostelId: string
+    kind: "linked" | "independent"
     relationship: "Friend" | "Family Member" | "Other" | null
     checkIn: string
     expectedCheckOut: string
@@ -120,13 +122,17 @@ export function Visitors() {
     perNight: number
     notes?: string
   }) => {
-    const student = students.find((s) => s.id === values.studentId)
+    const student = values.studentId
+      ? students.find((s) => s.id === values.studentId)
+      : undefined
     const total = values.perNight * values.nights
     checkInVisitor({
       name: values.name,
       phone: values.phone,
       cnic: values.cnic,
+      kind: values.kind,
       studentId: values.studentId,
+      hostelId: values.hostelId,
       roomId: student?.roomId ?? "",
       relationship: values.relationship,
       checkIn: new Date(values.checkIn).toISOString(),
@@ -155,12 +161,14 @@ export function Visitors() {
     toast.success(`${active.name} updated`)
   }
 
-  const activeStudent = active ? studentById.get(active.studentId) ?? null : null
-  const activeHostel = activeStudent
-    ? hostelById.get(activeStudent.hostelId) ?? null
+  const activeStudent = active?.studentId
+    ? studentById.get(active.studentId) ?? null
     : null
-  const activeRoom = activeStudent
-    ? roomById.get(activeStudent.roomId) ?? null
+  const activeHostel = active
+    ? hostelById.get(active.hostelId) ?? null
+    : null
+  const activeRoom = active?.roomId
+    ? roomById.get(active.roomId) ?? null
     : null
 
   return (
@@ -290,9 +298,9 @@ export function Visitors() {
                 </TableRow>
               ) : (
                 rows.map((v) => {
-                  const stu = studentById.get(v.studentId)
-                  const h = stu ? hostelById.get(stu.hostelId) : undefined
-                  const r = stu ? roomById.get(stu.roomId) : undefined
+                  const stu = v.studentId ? studentById.get(v.studentId) : undefined
+                  const h = hostelById.get(v.hostelId)
+                  const r = v.roomId ? roomById.get(v.roomId) : undefined
                   return (
                     <TableRow
                       key={v.id}
@@ -310,15 +318,26 @@ export function Visitors() {
                         </div>
                       </TableCell>
                       <TableCell className="text-[14px]">
-                        {stu?.name ?? "—"}
+                        {v.kind === "independent" ? (
+                          <span className="text-[var(--muted-foreground)] italic">
+                            Independent
+                          </span>
+                        ) : (
+                          stu?.name ?? "—"
+                        )}
                       </TableCell>
                       <TableCell className="text-[14px] text-[var(--muted-foreground)]">
-                        {h?.name ?? "—"} / Room {r?.number ?? "—"}
+                        {h?.name ?? "—"}
+                        {r && ` / Room ${r.number}`}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={relationshipVariant(v.relationship)}>
-                          {v.relationship ?? "—"}
-                        </Badge>
+                        {v.kind === "independent" ? (
+                          <Badge variant="warning-soft">Independent</Badge>
+                        ) : (
+                          <Badge variant={relationshipVariant(v.relationship)}>
+                            {v.relationship ?? "—"}
+                          </Badge>
+                        )}
                       </TableCell>
                       <TableCell>
                         <Badge variant={visitorStatusVariant[v.status]}>

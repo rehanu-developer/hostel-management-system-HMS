@@ -93,11 +93,17 @@ export function VisitorDetailSheet({
             <div>
               <SheetTitle>{visitor.name}</SheetTitle>
               <SheetDescription>
-                Visiting {student?.name ?? "—"}. Relationship:{" "}
-                {visitor.relationship ?? "—"}
+                {visitor.kind === "independent"
+                  ? "Independent walk-in guest — self-pay"
+                  : `Visiting ${student?.name ?? "—"}. Relationship: ${visitor.relationship ?? "—"}`}
               </SheetDescription>
             </div>
             <div className="flex flex-col items-end gap-1">
+              <Badge
+                variant={visitor.kind === "independent" ? "warning-soft" : "info-soft"}
+              >
+                {visitor.kind === "independent" ? "Independent" : "Linked"}
+              </Badge>
               <Badge variant={visitorStatusVariant[visitor.status]}>
                 {visitor.status}
               </Badge>
@@ -121,10 +127,12 @@ export function VisitorDetailSheet({
                 <p className="text-[var(--muted-foreground)]">CNIC / ID</p>
                 <p className="font-medium tabular-nums">{visitor.cnic}</p>
               </div>
-              <div className="col-span-2">
-                <p className="text-[var(--muted-foreground)]">Relationship</p>
-                <p className="font-medium">{visitor.relationship ?? "—"}</p>
-              </div>
+              {visitor.kind === "linked" && (
+                <div className="col-span-2">
+                  <p className="text-[var(--muted-foreground)]">Relationship</p>
+                  <p className="font-medium">{visitor.relationship ?? "—"}</p>
+                </div>
+              )}
               {visitor.notes && (
                 <div className="col-span-2">
                   <p className="text-[var(--muted-foreground)]">Notes</p>
@@ -134,29 +142,48 @@ export function VisitorDetailSheet({
             </div>
           </section>
 
-          {/* Visiting */}
-          <section className="space-y-3">
-            <h3 className="font-display text-sm font-semibold">Visiting</h3>
-            <div className="grid grid-cols-2 gap-3 rounded-md border border-[var(--border)] bg-[var(--card)] p-3 text-xs">
-              <div className="col-span-2">
-                <p className="text-[var(--muted-foreground)]">Student</p>
-                <p className="font-medium">{student?.name ?? "—"}</p>
-                <p className="text-[var(--muted-foreground)]">
-                  {student?.studentCode ?? ""}
-                </p>
+          {/* Visiting (only for linked) */}
+          {visitor.kind === "linked" && (
+            <section className="space-y-3">
+              <h3 className="font-display text-sm font-semibold">Visiting</h3>
+              <div className="grid grid-cols-2 gap-3 rounded-md border border-[var(--border)] bg-[var(--card)] p-3 text-xs">
+                <div className="col-span-2">
+                  <p className="text-[var(--muted-foreground)]">Student</p>
+                  <p className="font-medium">{student?.name ?? "—"}</p>
+                  <p className="text-[var(--muted-foreground)]">
+                    {student?.studentCode ?? ""}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[var(--muted-foreground)]">Hostel</p>
+                  <p className="font-medium">{hostel?.name ?? "—"}</p>
+                </div>
+                <div>
+                  <p className="text-[var(--muted-foreground)]">Room / Bed</p>
+                  <p className="font-medium">
+                    Room {room?.number ?? "—"} · Bed {student?.bedLabel ?? "—"}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-[var(--muted-foreground)]">Hostel</p>
-                <p className="font-medium">{hostel?.name ?? "—"}</p>
+            </section>
+          )}
+
+          {/* Stay (independent: just hostel) */}
+          {visitor.kind === "independent" && (
+            <section className="space-y-3">
+              <h3 className="font-display text-sm font-semibold">Stay</h3>
+              <div className="grid grid-cols-2 gap-3 rounded-md border border-[var(--border)] bg-[var(--card)] p-3 text-xs">
+                <div>
+                  <p className="text-[var(--muted-foreground)]">Hostel</p>
+                  <p className="font-medium">{hostel?.name ?? "—"}</p>
+                </div>
+                <div>
+                  <p className="text-[var(--muted-foreground)]">Type</p>
+                  <p className="font-medium">Walk-in / Self-pay</p>
+                </div>
               </div>
-              <div>
-                <p className="text-[var(--muted-foreground)]">Room / Bed</p>
-                <p className="font-medium">
-                  Room {room?.number ?? "—"} · Bed {student?.bedLabel ?? "—"}
-                </p>
-              </div>
-            </div>
-          </section>
+            </section>
+          )}
 
           {/* Stay */}
           <section className="space-y-3">

@@ -44,9 +44,23 @@ interface DataState {
   updateStudent: (id: string, s: Partial<Student>) => void
   deleteStudent: (id: string) => void
   changeStudentStatus: (id: string, status: Student["status"], checkOut?: string) => void
-  assignStudent: (studentId: string, hostelId: string, roomId: string, bedLabel: string) => void
-  changeStudentRoom: (studentId: string, hostelId: string, roomId: string, bedLabel: string) => void
+  assignStudent: (
+    studentId: string,
+    hostelId: string,
+    roomId: string,
+    bedLabel: string,
+    agreedMonthlyPrice?: number,
+  ) => void
+  changeStudentRoom: (
+    studentId: string,
+    hostelId: string,
+    roomId: string,
+    bedLabel: string,
+    agreedMonthlyPrice?: number,
+  ) => void
   getNextStudentCode: () => string
+  /** Returns the agreed monthly price for the student's currently-open room assignment. */
+  getAgreedMonthlyPrice: (studentId: string) => number
 
   // Payments
   recordPayment: (p: Omit<Payment, "id">) => void
@@ -69,6 +83,16 @@ interface DataState {
   checkOutVisitor: (id: string) => void
   updateVisitor: (id: string, patch: Partial<Visitor>) => void
   recordVisitorPayment: (id: string, status: Payment["status"]) => void
+
+  /** Returns the effective hostel/room/bed for a visitor's charge row. */
+  getVisitorChargeContext: (visitorId: string) => {
+    hostelId: string
+    hostelName: string
+    roomNumber: string
+    studentName: string
+    studentCode: string
+    kind: Visitor["kind"]
+  }
 
   // Settings
   updateSettings: (s: Partial<Settings>) => void
@@ -97,6 +121,24 @@ function ensureCurrentMonthFee(
       type: "accommodation" as PaymentType,
     },
   ]
+}
+
+/**
+ * Resolve the agreed monthly price for a student at a given point in time:
+ *   1. Open RoomHistoryEntry with `agreedMonthlyPrice` → use it
+ *   2. Open RoomHistoryEntry without override → use room's monthlyPrice
+ *   3. No open history → fall back to student's monthlyFee, then room price
+ */
+function resolveAgreedMonthlyPrice(
+  student: Student | undefined,
+  openHistory: RoomHistoryEntry | undefined,
+  rooms: Room[],
+): number {
+  if (openHistory?.agreedMonthlyPrice !== undefined) {
+    return openHistory.agreedMonthlyPrice
+  }
+  const room = rooms.find((r) => r.id === (openHistory?.roomId ?? student?.roomId))
+  return room?.monthlyPrice ?? student?.monthlyFee ?? 0
 }
 
 export const useDataStore = create<DataState>((set, get) => ({
@@ -139,9 +181,11 @@ export const useDataStore = create<DataState>((set, get) => ({
     const month = currentMonthKey()
     set((s) => {
       const newStudents = [...s.students, { ...stu, id }]
-      // First assignment should create the current-month accommodation fee
-      // priced from the room's monthlyPrice (room overrides apply).
-      const feeAmount = stu.monthlyFee ?? s.rooms.find((r) => r.id === stu.roomId)?.monthlyPrice ?? 0
+      // First assignment should create the current-month accommodation fee.
+      // Fee comes from the negotiated agreement if provided (stu.monthlyFee),
+      // otherwise the room's default price.
+      const feeAmount =
+        stu.monthlyFee ?? s.rooms.find((r) => r.id === stu.roomId)?.monthlyPrice ?? 0
       const payments = ensureCurrentMonthFee(s.payments, id, feeAmount, month)
       return { students: newStudents, payments }
     })
@@ -195,7 +239,7 @@ export const useDataStore = create<DataState>((set, get) => ({
     return `STU-${max + 1}`
   },
 
-  assignStudent: (studentId, hostelId, roomId, bedLabel) =>
+  assignStudent: (studentId, hostelId, roomId, bedLabel, agreedMonthlyPrice) =>
     set((s) => {
       const today = new Date().toISOString().slice(0, 10)
       const month = currentMonthKey()
@@ -211,6 +255,8 @@ export const useDataStore = create<DataState>((set, get) => ({
               bedLabel,
               status: "Active" as const,
               checkOut: undefined,
+              // Mirror the negotiated price onto the student for quick lookups
+              ...(agreedMonthlyPrice !== undefined ? { monthlyFee: agreedMonthlyPrice } : {}),
             }
           : stu,
       )
@@ -222,11 +268,12 @@ export const useDataStore = create<DataState>((set, get) => ({
         bedLabel,
         from: today,
         reason: updatedHistory.length === 0 ? undefined : "Room change",
+        ...(agreedMonthlyPrice !== undefined ? { agreedMonthlyPrice } : {}),
       })
-      // Auto-create / refresh current-month accommodation fee from room price
-      const stu = updatedStudents.find((x) => x.id === studentId)
+      // Auto-create / refresh current-month accommodation fee using the
+      // ASSIGNMENT's agreed price (not the room default).
       const feeAmount =
-        stu?.monthlyFee ?? s.rooms.find((r) => r.id === roomId)?.monthlyPrice ?? 0
+        agreedMonthlyPrice ?? s.rooms.find((r) => r.id === roomId)?.monthlyPrice ?? 0
       const payments = ensureCurrentMonthFee(s.payments, studentId, feeAmount, month)
       return {
         students: updatedStudents,
@@ -235,7 +282,7 @@ export const useDataStore = create<DataState>((set, get) => ({
       }
     }),
 
-  changeStudentRoom: (studentId, hostelId, roomId, bedLabel) =>
+  changeStudentRoom: (studentId, hostelId, roomId, bedLabel, agreedMonthlyPrice) =>
     set((s) => {
       const today = new Date().toISOString().slice(0, 10)
       const month = currentMonthKey()
@@ -243,7 +290,15 @@ export const useDataStore = create<DataState>((set, get) => ({
         h.studentId === studentId && !h.to ? { ...h, to: today } : h,
       )
       const updatedStudents = s.students.map((stu) =>
-        stu.id === studentId ? { ...stu, hostelId, roomId, bedLabel } : stu,
+        stu.id === studentId
+          ? {
+              ...stu,
+              hostelId,
+              roomId,
+              bedLabel,
+              ...(agreedMonthlyPrice !== undefined ? { monthlyFee: agreedMonthlyPrice } : {}),
+            }
+          : stu,
       )
       updatedHistory.push({
         id: `rh-${Date.now()}`,
@@ -253,12 +308,12 @@ export const useDataStore = create<DataState>((set, get) => ({
         bedLabel,
         from: today,
         reason: "Room change",
+        ...(agreedMonthlyPrice !== undefined ? { agreedMonthlyPrice } : {}),
       })
-      // Room change: use NEW room's price for the current month only.
+      // Room change: use the NEW assignment's agreed price for the current month.
       // Historical payments stay frozen.
-      const stu = updatedStudents.find((x) => x.id === studentId)
       const feeAmount =
-        stu?.monthlyFee ?? s.rooms.find((r) => r.id === roomId)?.monthlyPrice ?? 0
+        agreedMonthlyPrice ?? s.rooms.find((r) => r.id === roomId)?.monthlyPrice ?? 0
       const payments = ensureCurrentMonthFee(s.payments, studentId, feeAmount, month)
       return {
         students: updatedStudents,
@@ -266,6 +321,41 @@ export const useDataStore = create<DataState>((set, get) => ({
         payments,
       }
     }),
+
+  getAgreedMonthlyPrice: (studentId) => {
+    const s = get()
+    const student = s.students.find((x) => x.id === studentId)
+    const openHistory = s.roomHistory.find(
+      (h) => h.studentId === studentId && !h.to,
+    )
+    return resolveAgreedMonthlyPrice(student, openHistory, s.rooms)
+  },
+
+  getVisitorChargeContext: (visitorId) => {
+    const s = get()
+    const v = s.visitors.find((x) => x.id === visitorId)
+    if (!v) {
+      return {
+        hostelId: "",
+        hostelName: "—",
+        roomNumber: "—",
+        studentName: "—",
+        studentCode: "—",
+        kind: "linked" as const,
+      }
+    }
+    const hostel = s.hostels.find((h) => h.id === v.hostelId)
+    const room = v.roomId ? s.rooms.find((r) => r.id === v.roomId) : undefined
+    const student = v.studentId ? s.students.find((x) => x.id === v.studentId) : undefined
+    return {
+      hostelId: v.hostelId,
+      hostelName: hostel?.name ?? "—",
+      roomNumber: room?.number ?? "—",
+      studentName: student?.name ?? "—",
+      studentCode: student?.studentCode ?? "—",
+      kind: v.kind,
+    }
+  },
 
   recordPayment: (p) =>
     set((s) => {
@@ -312,7 +402,13 @@ export const useDataStore = create<DataState>((set, get) => ({
         : existing?.status === "Partially Paid"
           ? Math.round((existing.amount ?? 0) / 2)
           : 0
-      const total = existing?.amount ?? s.students.find((x) => x.id === studentId)?.monthlyFee ?? s.rooms.find((r) => r.id === s.students.find((x) => x.id === studentId)?.roomId)?.monthlyPrice ?? 0
+      // Resolve the agreed monthly price from the open assignment when no payment exists yet
+      const student = s.students.find((x) => x.id === studentId)
+      const openHistory = s.roomHistory.find(
+        (h) => h.studentId === studentId && !h.to,
+      )
+      const agreed = resolveAgreedMonthlyPrice(student, openHistory, s.rooms)
+      const total = existing?.amount ?? agreed
       const newPaid = priorAmountPaid + delta
       const remaining = Math.max(0, total - newPaid)
       const status: Payment["status"] =

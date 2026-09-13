@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import {
   Select,
@@ -34,6 +35,7 @@ interface ChangeRoomSheetProps {
     hostelId: string,
     roomId: string,
     bedLabel: string,
+    agreedMonthlyPrice?: number,
   ) => void
 }
 
@@ -49,6 +51,7 @@ export function ChangeRoomSheet({
   const [targetHostelId, setTargetHostelId] = useState("")
   const [targetRoomId, setTargetRoomId] = useState("")
   const [targetBed, setTargetBed] = useState("")
+  const [agreedPriceInput, setAgreedPriceInput] = useState<string>("")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
@@ -56,6 +59,10 @@ export function ChangeRoomSheet({
       setTargetHostelId(student.hostelId)
       setTargetRoomId(student.roomId)
       setTargetBed("")
+      // Pre-fill with student's current agreed price (or empty for default)
+      setAgreedPriceInput(
+        student.monthlyFee !== undefined ? String(student.monthlyFee) : "",
+      )
     }
   }, [open, student])
 
@@ -111,10 +118,27 @@ export function ChangeRoomSheet({
     if (!canConfirm || !student) return
     setIsSubmitting(true)
     await new Promise((resolve) => setTimeout(resolve, 350))
-    onConfirm(student.id, targetHostelId, targetRoomId, targetBed)
+    const trimmed = agreedPriceInput.trim()
+    const agreedMonthlyPrice =
+      trimmed === "" ? undefined : Number(trimmed)
+    onConfirm(
+      student.id,
+      targetHostelId,
+      targetRoomId,
+      targetBed,
+      Number.isFinite(agreedMonthlyPrice) ? agreedMonthlyPrice : undefined,
+    )
     setIsSubmitting(false)
     onOpenChange(false)
   }
+
+  const isNegotiated =
+    agreedPriceInput.trim() !== "" &&
+    Number(agreedPriceInput) !== (targetRoom?.monthlyPrice ?? 0)
+  const discount =
+    targetRoom && agreedPriceInput.trim() !== ""
+      ? Number(agreedPriceInput) - targetRoom.monthlyPrice
+      : 0
 
   if (!student) {
     return (
@@ -275,6 +299,68 @@ export function ChangeRoomSheet({
                     ))}
                   </div>
                 )}
+              </div>
+            )}
+
+            {targetRoom && (
+              <div className="mt-3 space-y-3 rounded-md border border-[var(--border)] bg-[var(--muted)]/30 p-3">
+                <div className="flex items-baseline justify-between gap-2">
+                  <p className="text-xs text-[var(--muted-foreground)]">
+                    New room default price
+                  </p>
+                  <p className="text-sm font-medium tabular-nums">
+                    {new Intl.NumberFormat("en-PK", {
+                      style: "currency",
+                      currency: "PKR",
+                      maximumFractionDigits: 0,
+                    }).format(targetRoom.monthlyPrice)}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-xs font-normal text-[var(--muted-foreground)]">
+                    Agreed Monthly Price{" "}
+                    <span className="text-[10px]">(optional — overrides default)</span>
+                  </Label>
+                  <div className="relative mt-1">
+                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-[var(--muted-foreground)]">
+                      Rs
+                    </span>
+                    <Input
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      placeholder={String(targetRoom.monthlyPrice)}
+                      value={agreedPriceInput}
+                      onChange={(e) => setAgreedPriceInput(e.target.value)}
+                      className="pl-9 tabular-nums"
+                    />
+                  </div>
+                  {isNegotiated && targetRoom && (
+                    <p
+                      className={`mt-1.5 text-[11px] tabular-nums ${
+                        discount < 0
+                          ? "text-amber-600 dark:text-amber-400"
+                          : "text-emerald-600 dark:text-emerald-400"
+                      }`}
+                    >
+                      {discount < 0
+                        ? `Discount: ${new Intl.NumberFormat("en-PK", {
+                            style: "currency",
+                            currency: "PKR",
+                            maximumFractionDigits: 0,
+                          }).format(Math.abs(discount))} below new room default`
+                        : `Premium: ${new Intl.NumberFormat("en-PK", {
+                            style: "currency",
+                            currency: "PKR",
+                            maximumFractionDigits: 0,
+                          }).format(discount)} above new room default`}
+                    </p>
+                  )}
+                  <p className="mt-1 text-[11px] text-[var(--muted-foreground)]">
+                    Leave empty to use the new room's default. The agreed price
+                    applies only to this assignment — historical fees stay frozen.
+                  </p>
+                </div>
               </div>
             )}
           </section>

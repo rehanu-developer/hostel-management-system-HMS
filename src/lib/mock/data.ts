@@ -473,15 +473,17 @@ function generatePayments(): Payment[] {
 export const mockPayments: Payment[] = generatePayments()
 
 export const mockVisitors: Visitor[] = [
-  // Active visitors (currently checked-in)
+  // Linked visitors (assigned to a student)
   {
     id: "v1",
     name: "Rashid Khan",
     phone: "0300-7654321",
     cnic: "35202-7654321-2",
     studentId: "s1",
+    hostelId: "h1",
     roomId: "r1",
     relationship: "Family Member",
+    kind: "linked",
     checkIn: "2026-09-12T14:30:00",
     expectedCheckOut: "2026-09-14T11:00:00",
     nights: 2,
@@ -496,8 +498,10 @@ export const mockVisitors: Visitor[] = [
     phone: "0333-1122334",
     cnic: "35202-1122334-5",
     studentId: "s5",
+    hostelId: "h1",
     roomId: "r9",
     relationship: "Friend",
+    kind: "linked",
     checkIn: "2026-09-11T16:45:00",
     expectedCheckOut: "2026-09-12T10:00:00",
     nights: 1,
@@ -507,15 +511,72 @@ export const mockVisitors: Visitor[] = [
     paymentStatus: "Outstanding",
   },
 
-  // Historical visitors — recent past days
+  // Independent visitors (no student — they pay themselves)
+  {
+    id: "v-ind-1",
+    name: "Salman Akhtar",
+    phone: "0345-1212121",
+    cnic: "35202-1212121-1",
+    hostelId: "h1",
+    relationship: "Other",
+    kind: "independent",
+    notes: "Walk-in guest — independent stay",
+    checkIn: "2026-09-12T18:00:00",
+    expectedCheckOut: "2026-09-14T11:00:00",
+    nights: 2,
+    perNight: 900,
+    total: 1800,
+    status: "Currently Visiting",
+    paymentStatus: "Partially Paid",
+  },
+  {
+    id: "v-ind-2",
+    name: "Junaid Bashir",
+    phone: "0300-3434343",
+    cnic: "35202-3434343-4",
+    hostelId: "h2",
+    relationship: "Other",
+    kind: "independent",
+    notes: "Walk-in guest — independent stay",
+    checkIn: "2026-09-08T14:00:00",
+    expectedCheckOut: "2026-09-10T11:00:00",
+    actualCheckOut: "2026-09-10T11:00:00",
+    nights: 2,
+    perNight: 900,
+    total: 1800,
+    status: "Checked Out",
+    paymentStatus: "Paid",
+  },
+  {
+    id: "v-ind-3",
+    name: "Mehak Yousaf",
+    phone: "0321-5656565",
+    cnic: "35202-5656565-6",
+    hostelId: "h3",
+    relationship: "Other",
+    kind: "independent",
+    notes: "Walk-in guest — independent stay",
+    checkIn: "2026-09-04T16:00:00",
+    expectedCheckOut: "2026-09-06T11:00:00",
+    actualCheckOut: "2026-09-06T11:00:00",
+    nights: 2,
+    perNight: 750,
+    total: 1500,
+    status: "Checked Out",
+    paymentStatus: "Outstanding",
+  },
+
+  // Historical linked visitors — recent past days
   {
     id: "v2",
     name: "Asma Ahmed",
     phone: "0321-8765432",
     cnic: "35202-8765432-4",
     studentId: "s2",
+    hostelId: "h1",
     roomId: "r1",
     relationship: "Family Member",
+    kind: "linked",
     checkIn: "2026-09-10T10:15:00",
     expectedCheckOut: "2026-09-10T18:00:00",
     actualCheckOut: "2026-09-10T18:00:00",
@@ -531,8 +592,10 @@ export const mockVisitors: Visitor[] = [
     phone: "0345-4433221",
     cnic: "35202-4433221-6",
     studentId: "s6",
+    hostelId: "h1",
     roomId: "r9",
     relationship: "Other",
+    kind: "linked",
     checkIn: "2026-09-09T11:00:00",
     expectedCheckOut: "2026-09-09T13:30:00",
     actualCheckOut: "2026-09-09T13:30:00",
@@ -548,8 +611,10 @@ export const mockVisitors: Visitor[] = [
     phone: "0300-9988776",
     cnic: "35202-9988776-1",
     studentId: "s4",
+    hostelId: "h1",
     roomId: "r3",
     relationship: "Family Member",
+    kind: "linked",
     checkIn: "2026-09-08T09:30:00",
     expectedCheckOut: "2026-09-08T17:00:00",
     actualCheckOut: "2026-09-08T17:00:00",
@@ -565,8 +630,10 @@ export const mockVisitors: Visitor[] = [
     phone: "0321-5544332",
     cnic: "35202-5544332-2",
     studentId: "s9",
+    hostelId: "h2",
     roomId: "r8",
     relationship: "Friend",
+    kind: "linked",
     checkIn: "2026-09-07T15:00:00",
     expectedCheckOut: "2026-09-07T20:30:00",
     actualCheckOut: "2026-09-07T20:30:00",
@@ -582,8 +649,10 @@ export const mockVisitors: Visitor[] = [
     phone: "0333-7788991",
     cnic: "35202-7788991-3",
     studentId: "s10",
+    hostelId: "h3",
     roomId: "r13",
     relationship: "Family Member",
+    kind: "linked",
     checkIn: "2026-09-05T11:00:00",
     expectedCheckOut: "2026-09-05T19:00:00",
     actualCheckOut: "2026-09-05T19:00:00",
@@ -599,8 +668,10 @@ export const mockVisitors: Visitor[] = [
     phone: "0345-3344556",
     cnic: "35202-3344556-4",
     studentId: "s11",
+    hostelId: "h3",
     roomId: "r13",
     relationship: "Other",
+    kind: "linked",
     checkIn: "2026-09-04T14:00:00",
     expectedCheckOut: "2026-09-04T16:00:00",
     actualCheckOut: "2026-09-04T16:00:00",
@@ -617,8 +688,10 @@ export const mockVisitors: Visitor[] = [
     phone: "0300-1122334",
     cnic: "35202-1122334-5",
     studentId: "s12",
+    hostelId: "h1",
     roomId: "r4",
     relationship: "Friend",
+    kind: "linked",
     checkIn: "2026-08-28T10:00:00",
     expectedCheckOut: "2026-08-28T18:00:00",
     actualCheckOut: "2026-08-28T18:00:00",
@@ -634,8 +707,10 @@ export const mockVisitors: Visitor[] = [
     phone: "0321-2233445",
     cnic: "35202-2233445-6",
     studentId: "s13",
+    hostelId: "h2",
     roomId: "r5",
     relationship: "Family Member",
+    kind: "linked",
     checkIn: "2026-08-25T13:00:00",
     expectedCheckOut: "2026-08-25T19:30:00",
     actualCheckOut: "2026-08-25T19:30:00",
@@ -651,8 +726,10 @@ export const mockVisitors: Visitor[] = [
     phone: "0333-5566778",
     cnic: "35202-5566778-7",
     studentId: "s3",
+    hostelId: "h1",
     roomId: "r2",
     relationship: "Friend",
+    kind: "linked",
     checkIn: "2026-08-20T15:00:00",
     expectedCheckOut: "2026-08-20T22:00:00",
     actualCheckOut: "2026-08-20T22:00:00",
@@ -668,8 +745,10 @@ export const mockVisitors: Visitor[] = [
     phone: "0345-6677889",
     cnic: "35202-6677889-8",
     studentId: "s6",
+    hostelId: "h1",
     roomId: "r9",
     relationship: "Family Member",
+    kind: "linked",
     checkIn: "2026-08-15T12:00:00",
     expectedCheckOut: "2026-08-15T17:00:00",
     actualCheckOut: "2026-08-15T17:00:00",
@@ -685,8 +764,10 @@ export const mockVisitors: Visitor[] = [
     phone: "0300-8899776",
     cnic: "35202-8899776-9",
     studentId: "s17",
+    hostelId: "h4",
     roomId: "r11",
     relationship: "Other",
+    kind: "linked",
     checkIn: "2026-08-10T09:00:00",
     expectedCheckOut: "2026-08-10T15:30:00",
     actualCheckOut: "2026-08-10T15:30:00",
@@ -702,8 +783,10 @@ export const mockVisitors: Visitor[] = [
     phone: "0321-9900112",
     cnic: "35202-9900112-0",
     studentId: "s18",
+    hostelId: "h1",
     roomId: "r2",
     relationship: "Family Member",
+    kind: "linked",
     checkIn: "2026-08-05T14:30:00",
     expectedCheckOut: "2026-08-05T20:00:00",
     actualCheckOut: "2026-08-05T20:00:00",
@@ -716,7 +799,7 @@ export const mockVisitors: Visitor[] = [
 ]
 
 export const mockRoomHistory: RoomHistoryEntry[] = [
-  // s1: Ahmed Khan — had Room 102 first, moved to Room 101
+  // s1: Ahmed Khan — had Room 102 first (negotiated 13k vs default 16k), moved to Room 101 (negotiated 17k vs default 18k)
   {
     id: "rh1",
     studentId: "s1",
@@ -726,6 +809,7 @@ export const mockRoomHistory: RoomHistoryEntry[] = [
     from: "2026-01-15",
     to: "2026-02-20",
     reason: "Room change",
+    agreedMonthlyPrice: 13000,
   },
   {
     id: "rh2",
@@ -734,8 +818,9 @@ export const mockRoomHistory: RoomHistoryEntry[] = [
     roomId: "r1",
     bedLabel: "A",
     from: "2026-02-20",
+    agreedMonthlyPrice: 17000,
   },
-  // s4: Usman Tariq — had Room 201 first, moved to Room 103
+  // s4: Usman Tariq — had Room 201 first, moved to Room 103 (default price)
   {
     id: "rh3",
     studentId: "s4",
@@ -753,8 +838,10 @@ export const mockRoomHistory: RoomHistoryEntry[] = [
     roomId: "r3",
     bedLabel: "A",
     from: "2026-04-12",
+    agreedMonthlyPrice: 14500,
   },
   // First-assignment records for every other active student (s2, s3, s5-s18)
+  // Sprinkle a few negotiated prices so the per-assignment model is observable
   ...mockStudents
     .filter(
       (s) =>
@@ -762,14 +849,21 @@ export const mockRoomHistory: RoomHistoryEntry[] = [
         s.id !== "s1" &&
         s.id !== "s4",
     )
-    .map<RoomHistoryEntry>((s, idx) => ({
-      id: `rh-init-${s.id}`,
-      studentId: s.id,
-      hostelId: s.hostelId,
-      roomId: s.roomId,
-      bedLabel: s.bedLabel,
-      from: s.checkIn,
-    })),
+    .map<RoomHistoryEntry>((s, idx) => {
+      // Negotiation rules: every 4th student gets a small discount vs default
+      const negotiated = idx % 4 === 0
+      return {
+        id: `rh-init-${s.id}`,
+        studentId: s.id,
+        hostelId: s.hostelId,
+        roomId: s.roomId,
+        bedLabel: s.bedLabel,
+        from: s.checkIn,
+        ...(negotiated
+          ? { agreedMonthlyPrice: 12500 } // example negotiated rate (override on assignment)
+          : {}),
+      }
+    }),
 ]
 
 export const mockSettings: Settings = {

@@ -57,18 +57,30 @@ export const roomSchema = z.object({
     .min(0, "Must be 0 or greater"),
 })
 
-export const visitorSchema = z.object({
-  name: z.string().min(2, "Visitor name required"),
-  phone: z.string().min(7, "Valid phone required"),
-  cnic: z.string().min(5, "CNIC/ID required"),
-  studentId: z.string().min(1, "Hostel member required"),
-  relationship: relationshipEnum,
-  checkIn: z.string().min(1, "Check-in required"),
-  expectedCheckOut: z.string().min(1, "Expected check-out required"),
-  nights: z.number().int().min(1, "Must be at least 1 night"),
-  perNight: z.number().min(0, "Must be 0 or greater"),
-  notes: z.string().optional(),
-})
+export const visitorKindEnum = z.enum(["linked", "independent"])
+
+export const visitorSchema = z
+  .object({
+    name: z.string().min(2, "Visitor name required"),
+    phone: z.string().min(7, "Valid phone required"),
+    cnic: z.string().min(5, "CNIC/ID required"),
+    kind: visitorKindEnum,
+    studentId: z.string().optional(),
+    hostelId: z.string().min(1, "Hostel required"),
+    relationship: relationshipEnum,
+    checkIn: z.string().min(1, "Check-in required"),
+    expectedCheckOut: z.string().min(1, "Expected check-out required"),
+    nights: z.number().int().min(1, "Must be at least 1 night"),
+    perNight: z.number().min(0, "Must be 0 or greater"),
+    notes: z.string().optional(),
+  })
+  .refine(
+    (v) => v.kind === "independent" || !!v.studentId,
+    {
+      message: "Linked visitors must be assigned to a hostel member",
+      path: ["studentId"],
+    },
+  )
 
 export const paymentSchema = z.object({
   studentId: z.string().min(1, "Student required"),

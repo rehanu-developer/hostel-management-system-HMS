@@ -309,6 +309,8 @@ export function FinancePage() {
               ) : (
                 rows.map((r) => {
                   const isAccommodation = r.type === "accommodation"
+                  const isIndependent =
+                    r.type === "visitor" && r.kind === "independent"
                   return (
                     <TableRow
                       key={r.id}
@@ -323,7 +325,12 @@ export function FinancePage() {
                           <span className="text-xs text-[var(--muted-foreground)]">
                             {r.studentCode}
                           </span>
-                          {!isAccommodation && (
+                          {isIndependent && (
+                            <span className="mt-0.5 text-[11px] text-[var(--muted-foreground)]">
+                              Walk-in · {r.visitorName}
+                            </span>
+                          )}
+                          {!isAccommodation && !isIndependent && (
                             <span className="mt-0.5 text-[11px] text-[var(--muted-foreground)]">
                               via {r.visitorName}
                             </span>
@@ -331,18 +338,17 @@ export function FinancePage() {
                         </div>
                       </TableCell>
                       <TableCell className="text-[14px] text-[var(--muted-foreground)]">
-                        {r.hostelName} / Room {r.roomNumber}
+                        {r.hostelName}
+                        {!isIndependent && ` / Room ${r.roomNumber}`}
                       </TableCell>
                       <TableCell>
-                        <Badge
-                          variant={
-                            isAccommodation ? "neutral-soft" : "info-soft"
-                          }
-                        >
-                          {isAccommodation
-                            ? "Accommodation"
-                            : "Visitor Stay"}
-                        </Badge>
+                        {isAccommodation ? (
+                          <Badge variant="neutral-soft">Accommodation</Badge>
+                        ) : isIndependent ? (
+                          <Badge variant="warning-soft">Independent Visitor</Badge>
+                        ) : (
+                          <Badge variant="info-soft">Visitor Stay</Badge>
+                        )}
                       </TableCell>
                       <TableCell className="text-[14px]">
                         {r.description}
@@ -376,14 +382,15 @@ export function FinancePage() {
                       >
                         <RowActions
                           row={r}
+                          isIndependent={isIndependent}
                           onView={() => setActive(r)}
-                          onViewStudent={() => navigate(`/students/${r.studentId}`)}
                           onRecord={() => {
                             setActive(r)
                           }}
                           onOpenStudentFinance={() =>
+                            !isIndependent &&
                             setActiveStudent({
-                              studentId: r.studentId,
+                              studentId: r.studentId as string,
                               rowId: r.id,
                             })
                           }
@@ -455,17 +462,18 @@ export function FinancePage() {
 
 function RowActions({
   row,
+  isIndependent,
   onView,
-  onViewStudent,
   onRecord,
   onOpenStudentFinance,
 }: {
   row: FinanceRow
+  isIndependent: boolean
   onView: () => void
-  onViewStudent: () => void
   onRecord: () => void
   onOpenStudentFinance: () => void
 }) {
+  const navigate = useNavigate()
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -484,14 +492,20 @@ function RowActions({
           <Receipt className="text-[var(--muted-foreground)]" />
           View Payment
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={onOpenStudentFinance}>
-          <Wallet className="text-[var(--muted-foreground)]" />
-          Student Finance
-        </DropdownMenuItem>
-        <DropdownMenuItem onSelect={onViewStudent}>
-          <Search className="text-[var(--muted-foreground)]" />
-          View Student
-        </DropdownMenuItem>
+        {!isIndependent && (
+          <DropdownMenuItem onSelect={onOpenStudentFinance}>
+            <Wallet className="text-[var(--muted-foreground)]" />
+            Student Finance
+          </DropdownMenuItem>
+        )}
+        {!isIndependent && (
+          <DropdownMenuItem
+            onSelect={() => navigate(`/students/${row.studentId}`)}
+          >
+            <Search className="text-[var(--muted-foreground)]" />
+            View Student
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem onSelect={onRecord}>
           <Plus className="text-[var(--muted-foreground)]" />
           Record Payment

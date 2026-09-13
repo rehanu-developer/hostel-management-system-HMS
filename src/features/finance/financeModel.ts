@@ -34,7 +34,8 @@ export interface AccommodationFinanceRow {
 export interface VisitorFinanceRow {
   id: string
   type: "visitor"
-  studentId: string // responsible hostel member
+  /** Linked: the responsible hostel member. Independent: undefined. */
+  studentId: string | undefined
   studentName: string
   studentCode: string
   hostel: Hostel | undefined
@@ -50,6 +51,8 @@ export interface VisitorFinanceRow {
   remaining: number
   status: PaymentStatus
   paidDate: string | null
+  /** "linked" or "independent" — drives the Student column rendering. */
+  kind: "linked" | "independent"
 }
 
 export type FinanceRow = AccommodationFinanceRow | VisitorFinanceRow
@@ -106,9 +109,9 @@ export function projectFinanceRows(
     })
 
   const visitorRows: VisitorFinanceRow[] = visitors.map((v) => {
-    const student = studentById.get(v.studentId)
-    const room = student ? roomById.get(student.roomId) : undefined
-    const hostel = student ? hostelById.get(student.hostelId) : undefined
+    const student = v.studentId ? studentById.get(v.studentId) : undefined
+    const hostel = hostelById.get(v.hostelId)
+    const room = v.roomId ? roomById.get(v.roomId) : undefined
     const paid =
       v.paymentStatus === "Paid"
         ? v.total
@@ -120,10 +123,11 @@ export function projectFinanceRows(
       id: v.id,
       type: "visitor",
       studentId: v.studentId,
-      studentName: student?.name ?? "—",
-      studentCode: student?.studentCode ?? "—",
+      studentName:
+        v.kind === "independent" ? "Independent Visitor" : (student?.name ?? "—"),
+      studentCode: v.kind === "independent" ? "—" : (student?.studentCode ?? "—"),
       hostel,
-      hostelId: student?.hostelId ?? "",
+      hostelId: v.hostelId,
       hostelName: hostel?.name ?? "—",
       room,
       roomNumber: room?.number ?? "—",
@@ -135,6 +139,7 @@ export function projectFinanceRows(
       remaining: computeRemaining(v.total, paid),
       status: v.paymentStatus,
       paidDate: v.paymentStatus === "Paid" ? v.checkIn : null,
+      kind: v.kind,
     }
   })
 

@@ -224,12 +224,21 @@ export function PaymentDetailSheet({
             <Card>
               <CardContent className="p-4 space-y-3">
                 <div>
-                  <h3 className="font-display text-sm font-semibold">Visitor</h3>
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-display text-sm font-semibold">Visitor</h3>
+                    <Badge
+                      variant={visitor.kind === "independent" ? "warning-soft" : "info-soft"}
+                    >
+                      {visitor.kind === "independent" ? "Independent" : "Linked"}
+                    </Badge>
+                  </div>
                   <Separator className="my-2" />
                   <Detail label="Name" value={visitor.name} />
                   <Detail label="Phone" value={visitor.phone} />
                   <Detail label="CNIC / ID" value={visitor.cnic ?? "—"} />
-                  <Detail label="Relationship" value={visitor.relationship} />
+                  {visitor.kind === "linked" && (
+                    <Detail label="Relationship" value={visitor.relationship ?? "—"} />
+                  )}
                 </div>
                 <div>
                   <h3 className="font-display text-sm font-semibold">Stay</h3>
