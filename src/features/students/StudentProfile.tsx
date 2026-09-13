@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom"
+import { useLocation, useNavigate, useParams } from "react-router-dom"
 import { useState } from "react"
 import { toast } from "sonner"
 import {
@@ -41,6 +41,15 @@ interface StudentProfileProps {
 export function StudentProfile({ onEdit }: StudentProfileProps) {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
+  const initialTab =
+    location.hash === "#payments"
+      ? "payments"
+      : location.hash === "#hostel"
+        ? "hostel"
+        : location.hash === "#history"
+          ? "history"
+          : "personal"
   const students = useDataStore((s) => s.students)
   const hostels = useDataStore((s) => s.hostels)
   const rooms = useDataStore((s) => s.rooms)
@@ -144,7 +153,7 @@ export function StudentProfile({ onEdit }: StudentProfileProps) {
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="personal" className="space-y-4">
+        <Tabs defaultValue={initialTab} key={initialTab} className="space-y-4">
           <TabsList>
             <TabsTrigger value="personal">Personal</TabsTrigger>
             <TabsTrigger value="hostel">Hostel & Room</TabsTrigger>

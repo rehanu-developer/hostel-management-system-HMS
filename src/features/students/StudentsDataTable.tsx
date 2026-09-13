@@ -5,9 +5,8 @@ import {
   Eye,
   Pencil,
   Wallet,
-  ArrowRightLeft,
-  UserCog,
   Trash2,
+  Check,
 } from "lucide-react"
 import {
   Table,
@@ -69,7 +68,7 @@ interface StudentsDataTableProps {
   onPageChange: (page: number) => void
   onPageSizeChange: (size: number) => void
   onEdit: (student: Student) => void
-  onChangeStatus: (student: Student) => void
+  onChangeStatus: (student: Student, status: StudentStatus) => void
   onDelete: (student: Student) => void
 }
 
@@ -206,12 +205,7 @@ export function StudentsDataTable({
               <TableRow
                 key={student.id}
                 data-state={isSelected ? "selected" : undefined}
-                className="group cursor-pointer"
-                onClick={(e) => {
-                  // Ignore clicks from portal-rendered dropdowns
-                  if (!e.currentTarget.contains(e.target as Node)) return
-                  navigate(`/students/${student.id}`)
-                }}
+                className="group"
               >
                 <TableCell className="pl-6" onClick={(e) => e.stopPropagation()}>
                   <Checkbox
@@ -247,10 +241,13 @@ export function StudentsDataTable({
                 <TableCell className="whitespace-nowrap text-[14px] text-[var(--muted-foreground)] tabular-nums">
                   {student.phone}
                 </TableCell>
-                <TableCell>
-                  <Badge variant={studentStatusVariant[student.status as StudentStatus]} className="whitespace-nowrap">
-                    {studentStatusLabel[student.status as StudentStatus]}
-                  </Badge>
+                <TableCell onClick={(e) => e.stopPropagation()}>
+                  <StatusDropdown
+                    student={student}
+                    onChangeStatus={(s) =>
+                      onChangeStatus(student, s as StudentStatus)
+                    }
+                  />
                 </TableCell>
                 <TableCell>
                   {payment ? (
@@ -273,7 +270,6 @@ export function StudentsDataTable({
                   <RowActionsMenu
                     student={student}
                     onEdit={onEdit}
-                    onChangeStatus={onChangeStatus}
                     onDelete={onDelete}
                   />
                 </TableCell>
@@ -305,15 +301,75 @@ function TableContainer({
   )
 }
 
+function StatusDropdown({
+  student,
+  onChangeStatus,
+}: {
+  student: Student
+  onChangeStatus: (s: StudentStatus) => void
+}) {
+  const current = student.status as StudentStatus
+  const options: StudentStatus[] = ["Active", "Suspended", "Left"]
+  return (
+    <DropdownMenu>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              aria-label={`Change status for ${student.name}`}
+              className="inline-flex items-center gap-1 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+            >
+              <Badge variant={studentStatusVariant[current]} className="whitespace-nowrap">
+                {studentStatusLabel[current]}
+              </Badge>
+            </button>
+          </DropdownMenuTrigger>
+        </TooltipTrigger>
+        <TooltipContent>Change status</TooltipContent>
+      </Tooltip>
+      <DropdownMenuContent align="end" className="w-44">
+        <DropdownMenuLabel className="text-[11px] font-medium uppercase tracking-wider">
+          Set status
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {options.map((s) => (
+          <DropdownMenuItem
+            key={s}
+            onSelect={(e) => {
+              e.preventDefault()
+              if (s !== current) onChangeStatus(s)
+            }}
+            disabled={s === current}
+          >
+            <span
+              className={`flex h-6 w-6 items-center justify-center rounded-full ${
+                s === current
+                  ? "bg-[var(--primary)]/15 text-[var(--primary)]"
+                  : "bg-[var(--muted)] text-[var(--muted-foreground)]"
+              }`}
+            >
+              {s === current ? (
+                <Check className="h-3.5 w-3.5" />
+              ) : (
+                <span className="h-1.5 w-1.5 rounded-full bg-current" />
+              )}
+            </span>
+            {studentStatusLabel[s]}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
 function RowActionsMenu({
   student,
   onEdit,
-  onChangeStatus,
   onDelete,
 }: {
   student: Student
   onEdit: (s: Student) => void
-  onChangeStatus: (s: Student) => void
   onDelete: (s: Student) => void
 }) {
   const navigate = useNavigate()
@@ -346,7 +402,9 @@ function RowActionsMenu({
             navigate(`/students/${student.id}`)
           }}
         >
-          <Eye className="text-[var(--muted-foreground)]" />
+          <IconBubble>
+            <Eye className="h-3.5 w-3.5" />
+          </IconBubble>
           View profile
         </DropdownMenuItem>
         <DropdownMenuItem
@@ -355,7 +413,9 @@ function RowActionsMenu({
             onEdit(student)
           }}
         >
-          <Pencil className="text-[var(--muted-foreground)]" />
+          <IconBubble>
+            <Pencil className="h-3.5 w-3.5" />
+          </IconBubble>
           Edit student
         </DropdownMenuItem>
         <DropdownMenuItem
@@ -364,26 +424,10 @@ function RowActionsMenu({
             navigate(`/students/${student.id}#payments`)
           }}
         >
-          <Wallet className="text-[var(--muted-foreground)]" />
+          <IconBubble>
+            <Wallet className="h-3.5 w-3.5" />
+          </IconBubble>
           View payments
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onSelect={(e) => {
-            e.preventDefault()
-            navigate(`/students/${student.id}#room`)
-          }}
-        >
-          <ArrowRightLeft className="text-[var(--muted-foreground)]" />
-          Change room
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onSelect={(e) => {
-            e.preventDefault()
-            onChangeStatus(student)
-          }}
-        >
-          <UserCog className="text-[var(--muted-foreground)]" />
-          Change status
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
@@ -393,11 +437,33 @@ function RowActionsMenu({
           }}
           className="text-[var(--destructive-soft-foreground)] focus:bg-[var(--destructive-soft)] focus:text-[var(--destructive-soft-foreground)]"
         >
-          <Trash2 className="text-[var(--destructive-soft-foreground)]" />
+          <IconBubble variant="danger">
+            <Trash2 className="h-3.5 w-3.5" />
+          </IconBubble>
           Delete student
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+  )
+}
+
+function IconBubble({
+  children,
+  variant = "neutral",
+}: {
+  children: React.ReactNode
+  variant?: "neutral" | "danger"
+}) {
+  const tone =
+    variant === "danger"
+      ? "bg-[var(--destructive-soft)] text-[var(--destructive-soft-foreground)]"
+      : "bg-[var(--muted)] text-[var(--muted-foreground)]"
+  return (
+    <span
+      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${tone}`}
+    >
+      {children}
+    </span>
   )
 }
 

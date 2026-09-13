@@ -13,7 +13,6 @@ import {
 import { StudentsDataTable } from "./StudentsDataTable"
 import { StudentSheet } from "./StudentSheets"
 import { DeleteStudentDialog } from "./DeleteStudentDialog"
-import { ChangeStatusDialog } from "./ChangeStatusDialog"
 import { EmptyState, NoResultsState } from "./EmptyAndNoResults"
 import type { Student, StudentStatus } from "@/types"
 import type { StudentFormValues } from "@/lib/schemas"
@@ -39,9 +38,6 @@ export function StudentsPage() {
 
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleting, setDeleting] = useState<Student | null>(null)
-
-  const [statusOpen, setStatusOpen] = useState(false)
-  const [statusTarget, setStatusTarget] = useState<Student | null>(null)
 
   const currentMonth = currentMonthKey()
 
@@ -122,9 +118,9 @@ export function StudentsPage() {
     setSheetOpen(true)
   }
 
-  const handleChangeStatus = (student: Student) => {
-    setStatusTarget(student)
-    setStatusOpen(true)
+  const handleChangeStatus = (student: Student, status: StudentStatus) => {
+    changeStudentStatus(student.id, status)
+    toast.success(`${student.name} marked as ${status}`)
   }
 
   const handleDelete = (student: Student) => {
@@ -150,15 +146,6 @@ export function StudentsPage() {
     deleteStudent(student.id)
     setDeleteOpen(false)
     toast.success(`${student.name} deleted`)
-  }
-
-  const handleConfirmStatus = (
-    student: Student,
-    status: StudentStatus,
-    checkOut?: string,
-  ) => {
-    changeStudentStatus(student.id, status, checkOut)
-    toast.success(`${student.name} marked as ${status}`)
   }
 
   const hasStudents = students.length > 0
@@ -223,13 +210,6 @@ export function StudentsPage() {
         rooms={rooms}
         students={students}
         onSubmit={handleSubmit}
-      />
-
-      <ChangeStatusDialog
-        student={statusTarget}
-        open={statusOpen}
-        onOpenChange={setStatusOpen}
-        onConfirm={handleConfirmStatus}
       />
 
       <DeleteStudentDialog
