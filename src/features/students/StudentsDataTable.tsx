@@ -43,7 +43,7 @@ import {
   studentStatusVariant,
   paymentStatusVariant,
 } from "./studentStatus"
-import { formatDate } from "@/lib/utils"
+import { } from "@/lib/utils"
 import type {
   Student,
   Hostel,
@@ -155,13 +155,12 @@ export function StudentsDataTable({
         <colgroup>
           <col className="w-[44px]" />
           <col className="w-[200px]" />
-          <col />
-          <col className="w-[110px]" />
           <col className="w-[140px]" />
-          <col className="w-[130px]" />
+          <col className="w-[80px]" />
           <col className="w-[140px]" />
           <col className="w-[120px]" />
-          <col className="w-[72px]" />
+          <col className="w-[100px]" />
+          <col className="w-[176px]" />
         </colgroup>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
@@ -184,7 +183,6 @@ export function StudentsDataTable({
             <TableHead>Phone</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Fee</TableHead>
-            <TableHead>Check-in</TableHead>
             <TableHead className="pr-6 text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -220,7 +218,9 @@ export function StudentsDataTable({
                   </div>
                 </TableCell>
                 <TableCell className="text-[14px] text-[var(--muted-foreground)]">
-                  <span className="line-clamp-1">{hostel?.name ?? "—"}</span>
+                  <span className="block truncate" title={hostel?.name}>
+                    {hostel?.name ?? "—"}
+                  </span>
                 </TableCell>
                 <TableCell>
                   {room ? (
@@ -254,9 +254,6 @@ export function StudentsDataTable({
                       No record
                     </span>
                   )}
-                </TableCell>
-                <TableCell className="whitespace-nowrap text-[14px] text-[var(--muted-foreground)] tabular-nums">
-                  {formatDate(student.checkIn)}
                 </TableCell>
                 <TableCell
                   className="pr-6 text-right"
@@ -370,7 +367,7 @@ function RowActionsMenu({
   const navigate = useNavigate()
 
   return (
-    <div className="flex items-center justify-end gap-1.5">
+    <div className="flex items-center justify-end gap-1">
       <Tooltip>
         <TooltipTrigger asChild>
           <button
@@ -380,7 +377,7 @@ function RowActionsMenu({
               e.stopPropagation()
               navigate(`/students/${student.id}`)
             }}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[var(--muted)] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+            className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[var(--muted)] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
           >
             <Eye className="h-3.5 w-3.5" />
           </button>
@@ -397,7 +394,7 @@ function RowActionsMenu({
               e.stopPropagation()
               onEdit(student)
             }}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[var(--muted)] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+            className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[var(--muted)] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
           >
             <Pencil className="h-3.5 w-3.5" />
           </button>
@@ -414,7 +411,7 @@ function RowActionsMenu({
               e.stopPropagation()
               navigate(`/students/${student.id}#payments`)
             }}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[var(--muted)] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+            className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[var(--muted)] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
           >
             <Wallet className="h-3.5 w-3.5" />
           </button>
@@ -431,7 +428,7 @@ function RowActionsMenu({
               e.stopPropagation()
               onDelete(student)
             }}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[var(--destructive-soft)] text-[var(--destructive-soft-foreground)] transition-colors hover:bg-[var(--destructive-soft)]/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+            className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[var(--destructive-soft)] text-[var(--destructive-soft-foreground)] transition-colors hover:bg-[var(--destructive-soft)]/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
           >
             <Trash2 className="h-3.5 w-3.5" />
           </button>
@@ -540,7 +537,6 @@ function TableSkeleton() {
           <TableHead>Phone</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Fee</TableHead>
-          <TableHead>Check-in</TableHead>
           <TableHead className="pr-6 text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -557,7 +553,7 @@ function TableSkeleton() {
               </div>
             </TableCell>
             <TableCell>
-              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-4 w-24" />
             </TableCell>
             <TableCell>
               <Skeleton className="h-4 w-16" />
@@ -571,11 +567,8 @@ function TableSkeleton() {
             <TableCell>
               <Skeleton className="h-5 w-20 rounded-full" />
             </TableCell>
-            <TableCell>
-              <Skeleton className="h-4 w-24" />
-            </TableCell>
             <TableCell className="pr-6 text-right">
-              <Skeleton className="ml-auto h-8 w-8 rounded-full" />
+              <Skeleton className="ml-auto h-7 w-7 rounded-full" />
             </TableCell>
           </TableRow>
         ))}

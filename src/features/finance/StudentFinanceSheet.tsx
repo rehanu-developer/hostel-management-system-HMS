@@ -134,6 +134,14 @@ export function StudentFinanceSheet({
               </CardContent>
             </Card>
 
+            {/* Monthly Responsibility (accommodation + visitor charges) */}
+            <MonthlyResponsibilityCard
+              student={student}
+              studentPayments={studentPayments}
+              studentVisitors={studentVisitors}
+              currency={currency}
+            />
+
             {/* Accommodation */}
             <AccommodationCard
               student={student}
@@ -361,6 +369,182 @@ function VisitorHistoryRow({
   )
 }
 
+function MonthlyResponsibilityCard({
+  student,
+  studentPayments,
+  studentVisitors,
+  currency,
+}: {
+  student: Student
+  studentPayments: Payment[]
+  studentVisitors: Visitor[]
+  currency: string
+}) {
+  const currentMonth = currentMonthKey()
+
+  // Accommodation: current month's fee
+  const currentAccommodation = studentPayments.find(
+    (p) => p.month === currentMonth,
+  )
+  const accommodationFee = currentAccommodation?.amount ?? 0
+  const accommodationPaid = currentAccommodation
+    ? (currentAccommodation.paid ??
+        (currentAccommodation.status === "Paid"
+          ? currentAccommodation.amount
+          : currentAccommodation.status === "Partially Paid"
+            ? Math.round(currentAccommodation.amount / 2)
+            : 0))
+    : 0
+
+  // Visitor charges for the current month — linked visitors whose stay overlaps
+  // the current month. A visitor with fromDate in the current month is counted
+  // because their charge is billed that month.
+  const linkedVisitorsCurrent = studentVisitors.filter(
+    (v) => v.fromDate.startsWith(currentMonth),
+  )
+  const visitorCharges = linkedVisitorsCurrent.reduce((sum, v) => {
+    if (v.status === "Paid") return sum + v.charge
+    if (v.status === "Partially Paid") return sum + v.charge
+    return sum + v.charge
+  }, 0)
+  const visitorPaid = linkedVisitorsCurrent.reduce((sum, v) => {
+    return (
+      sum +
+      (v.paid ??
+        (v.status === "Paid"
+          ? v.charge
+          : v.status === "Partially Paid"
+            ? Math.round(v.charge / 2)
+            : 0))
+    )
+  }, 0)
+
+  const totalBill = accommodationFee + visitorCharges
+  const totalPaid = accommodationPaid + visitorPaid
+  const totalRemaining = Math.max(totalBill - totalPaid, 0)
+  const allSettled =
+    totalBill > 0 &&
+    totalPaid >= totalBill &&
+    (currentAccommodation !== undefined || linkedVisitorsCurrent.length > 0)
+
+  return (
+    <Card>
+      <CardContent className="p-4">
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="font-display text-sm font-semibold">
+            Monthly Responsibility
+          </h3>
+          <span className="text-[11px] uppercase tracking-wide text-[var(--muted-foreground)]">
+            {formatMonth(currentMonth)}
+          </span>
+        </div>
+
+        {totalBill === 0 ? (
+          <p className="text-xs text-[var(--muted-foreground)]">
+            No charges recorded for this month.
+          </p>
+        ) : (
+          <>
+            <div className="space-y-2 border-b border-[var(--border)] pb-3 text-sm">
+              <Row
+                label="Accommodation"
+                sublabel={`${student.studentCode}`}
+                value={formatCurrency(accommodationFee, currency)}
+              />
+              {linkedVisitorsCurrent.length > 0 && (
+                <Row
+                  label="Visitor charges"
+                  sublabel={`${linkedVisitorsCurrent.length} ${
+                    linkedVisitorsCurrent.length === 1 ? "guest" : "guests"
+                  } this month`}
+                  value={formatCurrency(visitorCharges, currency)}
+                />
+              )}
+            </div>
+
+            <div className="space-y-2 pt-3 text-sm">
+              <Row
+                label="Total bill"
+                value={
+                  <span className="font-semibold tabular-nums">
+                    {formatCurrency(totalBill, currency)}
+                  </span>
+                }
+                bold
+              />
+              <Row
+                label="Paid"
+                value={
+                  <span className="tabular-nums text-[var(--muted-foreground)]">
+                    {formatCurrency(totalPaid, currency)}
+                  </span>
+                }
+              />
+              <Row
+                label={totalRemaining > 0 ? "Remaining" : "Settled"}
+                value={
+                  <span
+                    className={
+                      allSettled
+                        ? "font-semibold tabular-nums text-[var(--success)]"
+                        : "font-semibold tabular-nums"
+                    }
+                  >
+                    {formatCurrency(totalRemaining, currency)}
+                  </span>
+                }
+              />
+            </div>
+
+            {!currentAccommodation && linkedVisitorsCurrent.length > 0 && (
+              <div className="mt-3 flex items-start gap-2 rounded-md border border-[var(--warning-soft)]/40 bg-[var(--warning-soft)]/10 px-3 py-2 text-xs text-[var(--foreground)]">
+                <span>
+                  The student is responsible for settling the guest charges
+                  along with their monthly fee.
+                </span>
+              </div>
+            )}
+          </>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
+function Row({
+  label,
+  sublabel,
+  value,
+  bold,
+}: {
+  label: string
+  sublabel?: string
+  value: React.ReactNode
+  bold?: boolean
+}) {
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <div>
+        <div
+          className={
+            bold
+              ? "text-[13px] font-medium text-[var(--foreground)]"
+              : "text-[13px] text-[var(--foreground)]"
+          }
+        >
+          {label}
+        </div>
+        {sublabel && (
+          <div className="text-[11px] text-[var(--muted-foreground)]">
+            {sublabel}
+          </div>
+        )}
+      </div>
+      <div className="text-[13px]">{value}</div>
+    </div>
+  )
+}
+
 function PaymentHistoryRow({
   payment,
   currency,
@@ -369,7 +553,7 @@ function PaymentHistoryRow({
   currency: string
 }) {
   return (
-    <div className="flex items-center justify-between rounded-md border border-[var(--border)]/60 px-3 py-2 text-xs">
+    <div className="flex items-center justify-between rounded-md border border-[var(--border)] px-3 py-2 text-xs">
       <div>
         <div className="font-medium">{formatMonth(payment.month)}</div>
         <div className="text-[var(--muted-foreground)]">
