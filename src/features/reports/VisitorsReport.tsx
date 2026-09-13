@@ -181,10 +181,10 @@ export function VisitorsReport({ onExportReady }: VisitorsReportProps = {}) {
         actualCheckOut: r.actualCheckOut ?? null,
       })),
       columns: [
-        { header: "Visitor", accessor: (r) => r.name },
+        { header: "Guest", accessor: (r) => r.name },
         { header: "Phone", accessor: (r) => r.phone },
         { header: "CNIC", accessor: (r) => r.cnic },
-        { header: "Hostel Member", accessor: (r) => r.studentName },
+        { header: "Nomad Host", accessor: (r) => r.studentName },
         { header: "Student ID", accessor: (r) => r.studentCode },
         { header: "Hostel", accessor: (r) => r.hostelName },
         { header: "Room", accessor: (r) => r.roomNumber },
@@ -230,7 +230,7 @@ export function VisitorsReport({ onExportReady }: VisitorsReportProps = {}) {
         search={{
           value: search,
           onChange: setSearch,
-          placeholder: "Search visitors...",
+          placeholder: "Search guests...",
         }}
         selects={[
           {
@@ -248,7 +248,7 @@ export function VisitorsReport({ onExportReady }: VisitorsReportProps = {}) {
           <>
             <Select value={studentFilter} onValueChange={setStudentFilter}>
               <SelectTrigger className="h-9 w-full sm:w-[170px]">
-                <SelectValue placeholder="Any student" />
+                <SelectValue placeholder="Any nomad" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Any student</SelectItem>
@@ -301,7 +301,7 @@ export function VisitorsReport({ onExportReady }: VisitorsReportProps = {}) {
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead className="pl-6">Visitor</TableHead>
-              <TableHead>Hostel Member</TableHead>
+              <TableHead>Nomad</TableHead>
               <TableHead>Hostel / Room</TableHead>
               <TableHead>Relationship</TableHead>
               <TableHead>Status</TableHead>

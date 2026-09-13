@@ -164,7 +164,7 @@ export function StudentsPage() {
     if (selectedStudents.length === 0) return
     exportStudentsToCSV(selectedStudents, hostels, rooms, payments, currentMonth)
     toast.success(
-      `Exported ${selectedStudents.length} student${selectedStudents.length === 1 ? "" : "s"}`,
+      `Exported ${selectedStudents.length} nomad${selectedStudents.length === 1 ? "" : "s"}`,
     )
     setSelected(new Set())
   }
@@ -176,7 +176,7 @@ export function StudentsPage() {
   return (
     <>
       <PageHeader
-        title="Students"
+        title="Nomads"
         description="Manage hostel students, accommodation, status and payments."
         actions={
           <>
@@ -268,7 +268,7 @@ function exportStudentsToCSV(
   const hostelById = new Map(hostels.map((h) => [h.id, h]))
   const roomById = new Map(rooms.map((r) => [r.id, r]))
   const headers = [
-    "Student ID",
+    "Nomad ID",
     "Name",
     "Phone",
     "Email",
@@ -320,7 +320,7 @@ function exportStudentsToCSV(
   const url = URL.createObjectURL(blob)
   const a = document.createElement("a")
   a.href = url
-  a.download = `students-${new Date().toISOString().slice(0, 10)}.csv`
+  a.download = `nomads-${new Date().toISOString().slice(0, 10)}.csv`
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)

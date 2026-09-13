@@ -34,7 +34,7 @@ export function FinanceSummaryCards({ summary, currency }: Props) {
     },
     {
       key: "pending",
-      label: "Pending Students",
+      label: "Pending Nomads",
       value: summary.pendingStudents.toLocaleString(),
       icon: CalendarClock,
       tone: "text-rose-600 dark:text-rose-400",
@@ -72,9 +72,9 @@ export function FinanceSummaryCards({ summary, currency }: Props) {
               {key === "expected"
                 ? "Accommodation only · active filters"
                 : key === "pending"
-                  ? "Students with unpaid accommodation fees"
+                  ? "Nomads with unpaid accommodation fees"
                   : key === "collected"
-                    ? "Across accommodation + visitor stays"
+                    ? "Across accommodation + guest stays"
                     : "Total amount still owed"}
             </div>
           </CardContent>

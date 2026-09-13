@@ -145,7 +145,7 @@ export function PaymentDetailSheet({
             Payment Detail
           </SheetTitle>
           <SheetDescription>
-            {isAccommodation ? "Accommodation fee record" : "Visitor stay record"} for {row.studentName}
+            {isAccommodation ? "Accommodation fee record" : "Guest stay record"} for {row.studentName}
           </SheetDescription>
         </SheetHeader>
 
@@ -160,7 +160,7 @@ export function PaymentDetailSheet({
                       {row.studentName}
                     </span>
                     <Badge variant={isAccommodation ? "neutral-soft" : "info-soft"}>
-                      {isAccommodation ? "Accommodation" : "Visitor Stay"}
+                      {isAccommodation ? "Accommodation" : "Guest Stay"}
                     </Badge>
                   </div>
                   <div className="mt-1 flex items-center gap-3 text-xs text-[var(--muted-foreground)]">
@@ -225,7 +225,7 @@ export function PaymentDetailSheet({
               <CardContent className="p-4 space-y-3">
                 <div>
                   <div className="flex items-center justify-between">
-                    <h3 className="font-display text-sm font-semibold">Visitor</h3>
+                    <h3 className="font-display text-sm font-semibold">Guest</h3>
                     <Badge
                       variant={visitor.kind === "independent" ? "warning-soft" : "info-soft"}
                     >

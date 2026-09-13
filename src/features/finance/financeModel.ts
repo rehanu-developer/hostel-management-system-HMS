@@ -127,7 +127,7 @@ export function projectFinanceRows(
       type: "visitor",
       studentId: v.studentId,
       studentName:
-        v.kind === "independent" ? "Independent Visitor" : (student?.name ?? "—"),
+        v.kind === "independent" ? "Independent Guest" : (student?.name ?? "—"),
       studentCode: v.kind === "independent" ? "—" : (student?.studentCode ?? "—"),
       hostel,
       hostelId: v.hostelId,

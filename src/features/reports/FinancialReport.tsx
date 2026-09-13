@@ -139,7 +139,7 @@ export function FinancialReport({ onExportReady }: FinancialReportProps = {}) {
         type: "visitor",
         studentId: v.studentId,
         studentName:
-          v.kind === "independent" ? "Independent Visitor" : (student?.name ?? "—"),
+          v.kind === "independent" ? "Independent Guest" : (student?.name ?? "—"),
         studentCode: v.kind === "independent" ? "—" : (student?.studentCode ?? "—"),
         hostelName: hostel?.name ?? "—",
         roomNumber: room?.number ?? "—",
@@ -259,11 +259,11 @@ export function FinancialReport({ onExportReady }: FinancialReportProps = {}) {
           accessor: (r) =>
             r.type === "accommodation" ? "Student Accommodation" : "Visitor Stay",
         },
-        { header: "Student", accessor: (r) => r.studentName },
-        { header: "Student ID", accessor: (r) => r.studentCode },
+        { header: "Nomad", accessor: (r) => r.studentName },
+        { header: "Nomad ID", accessor: (r) => r.studentCode },
         { header: "Hostel", accessor: (r) => r.hostelName },
         { header: "Room", accessor: (r) => r.roomNumber },
-        { header: "Visitor", accessor: (r) => r.visitorName ?? "" },
+        { header: "Guest", accessor: (r) => r.visitorName ?? "" },
         { header: "Month", accessor: (r) => formatMonth(r.month) },
         { header: "Amount", accessor: (r) => String(r.amount), align: "right" },
         { header: "Status", accessor: (r) => r.status },
@@ -301,7 +301,7 @@ export function FinancialReport({ onExportReady }: FinancialReportProps = {}) {
         search={{
           value: search,
           onChange: setSearch,
-          placeholder: "Search students or visitors...",
+          placeholder: "Search nomads or guests...",
         }}
         selects={[
           {
@@ -312,9 +312,9 @@ export function FinancialReport({ onExportReady }: FinancialReportProps = {}) {
               { value: "all", label: "All payment types" },
               {
                 value: "accommodation",
-                label: "Student Accommodation",
+                label: "Nomad Accommodation",
               },
-              { value: "visitor", label: "Visitor Stay" },
+              { value: "visitor", label: "Guest Stay" },
             ],
             width: "sm:w-[190px]",
           },
@@ -381,7 +381,7 @@ export function FinancialReport({ onExportReady }: FinancialReportProps = {}) {
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead className="pl-6">Type</TableHead>
-              <TableHead>Student / Visitor</TableHead>
+              <TableHead>Nomad / Guest</TableHead>
               <TableHead>Hostel / Room</TableHead>
               <TableHead className="text-right">Monthly Fee</TableHead>
               <TableHead className="text-right">Amount Paid</TableHead>
@@ -425,7 +425,7 @@ export function FinancialReport({ onExportReady }: FinancialReportProps = {}) {
                       <Badge
                         variant={isVisitor ? "info-soft" : "neutral-soft"}
                       >
-                        {isVisitor ? "Visitor Stay" : "Student"}
+                        {isVisitor ? "Guest Stay" : "Nomad"}
                       </Badge>
                     </TableCell>
                     <TableCell>

@@ -70,7 +70,7 @@ export function StudentFinanceSheet({
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent side="right" className="w-full sm:max-w-md">
           <SheetHeader>
-            <SheetTitle>Student Finance</SheetTitle>
+            <SheetTitle>Nomad Finance</SheetTitle>
           </SheetHeader>
         </SheetContent>
       </Sheet>
@@ -81,7 +81,7 @@ export function StudentFinanceSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-lg">
         <SheetHeader>
-          <SheetTitle>Student Finance</SheetTitle>
+          <SheetTitle>Nomad Finance</SheetTitle>
           <SheetDescription>
             Complete financial record for this hostel member.
           </SheetDescription>
@@ -163,7 +163,7 @@ export function StudentFinanceSheet({
                 {studentVisitors.length === 0 ? (
                   <EmptyMini
                     icon={<Users className="h-4 w-4" />}
-                    message="No visitors assigned to this student"
+                    message="No guests assigned to this nomad"
                   />
                 ) : (
                   <div className="space-y-2">
@@ -396,7 +396,7 @@ function MonthlyResponsibilityCard({
             : 0))
     : 0
 
-  // Visitor charges for the current month — linked visitors whose stay overlaps
+  // Guest charges for the current month — linked visitors whose stay overlaps
   // the current month. A visitor with fromDate in the current month is counted
   // because their charge is billed that month.
   const linkedVisitorsCurrent = studentVisitors.filter(
@@ -453,7 +453,7 @@ function MonthlyResponsibilityCard({
               />
               {linkedVisitorsCurrent.length > 0 && (
                 <Row
-                  label="Visitor charges"
+                  label="Guest charges"
                   sublabel={`${linkedVisitorsCurrent.length} ${
                     linkedVisitorsCurrent.length === 1 ? "guest" : "guests"
                   } this month`}

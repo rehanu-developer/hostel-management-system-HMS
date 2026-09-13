@@ -56,14 +56,14 @@ const baseSchema = z.object({
 
 const studentSchema = baseSchema.extend({
   type: z.literal("student"),
-  studentId: z.string().min(1, "Student is required"),
+  studentId: z.string().min(1, "Nomad is required"),
   month: z.string().min(1, "Billing month is required"),
   amount: z.coerce.number().min(1, "Amount must be greater than 0"),
 })
 
 const visitorSchema = baseSchema.extend({
   type: z.literal("visitor"),
-  visitorId: z.string().min(1, "Visitor is required"),
+  visitorId: z.string().min(1, "Guest is required"),
   amount: z.coerce.number().min(1, "Amount must be greater than 0"),
 })
 
@@ -255,8 +255,8 @@ export function RecordPaymentSheet({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="student">Student Accommodation</SelectItem>
-                      <SelectItem value="visitor">Visitor Stay</SelectItem>
+                      <SelectItem value="student">Nomad Accommodation</SelectItem>
+                      <SelectItem value="visitor">Guest Stay</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -271,7 +271,7 @@ export function RecordPaymentSheet({
                   name="studentId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel required>Student</FormLabel>
+                      <FormLabel required>Nomad</FormLabel>
                       <div className="space-y-2">
                         <div className="relative">
                           <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--muted-foreground)]" />
@@ -288,7 +288,7 @@ export function RecordPaymentSheet({
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Choose student" />
+                              <SelectValue placeholder="Choose nomad" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent className="max-h-[220px]">
@@ -406,12 +406,12 @@ export function RecordPaymentSheet({
                   name="visitorId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel required>Visitor</FormLabel>
+                      <FormLabel required>Guest</FormLabel>
                       <div className="space-y-2">
                         <div className="relative">
                           <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--muted-foreground)]" />
                           <Input
-                            placeholder="Search by visitor or responsible student name"
+                            placeholder="Search by guest or responsible nomad name"
                             className="pl-9"
                             value={visitorSearch}
                             onChange={(e) => setVisitorSearch(e.target.value)}
@@ -423,7 +423,7 @@ export function RecordPaymentSheet({
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Choose visitor" />
+                              <SelectValue placeholder="Choose guest" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent className="max-h-[220px]">
@@ -453,7 +453,7 @@ export function RecordPaymentSheet({
                               variant={selectedVisitor.kind === "independent" ? "warning-soft" : "info-soft"}
                               className="text-[10px]"
                             >
-                              {selectedVisitor.kind === "independent" ? "Independent" : "Visitor Stay"}
+                              {selectedVisitor.kind === "independent" ? "Independent" : "Guest Stay"}
                             </Badge>
                           </div>
                           <div className="mt-1 text-[var(--muted-foreground)]">
@@ -493,7 +493,7 @@ export function RecordPaymentSheet({
                 />
 
                 <ReadOnlyField
-                  label="Visitor Charge"
+                  label="Guest Charge"
                   value={selectedVisitor
                     ? formatCurrency(selectedVisitor.total, currency)
                     : "—"}

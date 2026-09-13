@@ -199,7 +199,7 @@ export function FinancePage() {
       delta: amount,
       paidDate,
     })
-    toast.success("Visitor payment recorded")
+    toast.success("Guest payment recorded")
   }
 
   const hasActive = isFinanceFilterActive(filters)
@@ -208,7 +208,7 @@ export function FinancePage() {
     <>
       <PageHeader
         title="Finance"
-        description="Manage student fees, visitor payments, outstanding balances and financial records across all hostels."
+        description="Manage nomad fees, guest payments, outstanding balances and financial records across all hostels."
         actions={
           <div className="flex items-center gap-2">
             <Button
@@ -272,7 +272,7 @@ export function FinancePage() {
             </colgroup>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead className="pl-6">Student</TableHead>
+                <TableHead className="pl-6">Nomad</TableHead>
                 <TableHead>Hostel</TableHead>
                 <TableHead>Room</TableHead>
                 <TableHead>Type</TableHead>
@@ -361,9 +361,9 @@ export function FinancePage() {
                         {isAccommodation ? (
                           <Badge variant="neutral-soft">Accommodation</Badge>
                         ) : isIndependent ? (
-                          <Badge variant="warning-soft">Independent Visitor</Badge>
+                          <Badge variant="warning-soft">Independent Guest</Badge>
                         ) : (
-                          <Badge variant="info-soft">Visitor Stay</Badge>
+                          <Badge variant="info-soft">Guest Stay</Badge>
                         )}
                       </TableCell>
                       <TableCell>
@@ -548,7 +548,7 @@ function RowActions({
           <TooltipTrigger asChild>
             <button
               type="button"
-              aria-label="Open student finance"
+              aria-label="Open nomad finance"
               onClick={(e) => {
                 e.stopPropagation()
                 onOpenStudentFinance()
@@ -558,7 +558,7 @@ function RowActions({
               <Wallet className="h-3.5 w-3.5" />
             </button>
           </TooltipTrigger>
-          <TooltipContent>Student finance</TooltipContent>
+          <TooltipContent>Nomad finance</TooltipContent>
         </Tooltip>
       )}
 
@@ -567,7 +567,7 @@ function RowActions({
           <TooltipTrigger asChild>
             <button
               type="button"
-              aria-label="View student profile"
+              aria-label="View nomad profile"
               onClick={(e) => {
                 e.stopPropagation()
                 navigate(`/students/${row.studentId}`)
@@ -577,7 +577,7 @@ function RowActions({
               <Search className="h-3.5 w-3.5" />
             </button>
           </TooltipTrigger>
-          <TooltipContent>View student</TooltipContent>
+          <TooltipContent>View nomad</TooltipContent>
         </Tooltip>
       )}
     </div>
@@ -615,12 +615,12 @@ function EmptyState({
 
 function exportFinanceRowsToCSV(rows: FinanceRow[], currency: string) {
   const headers = [
-    "Student",
-    "Student ID",
+    "Nomad",
+    "Nomad ID",
     "Type",
     "Hostel",
     "Room",
-    "Visitor (if any)",
+    "Guest (if any)",
     "Description",
     "Month",
     "Amount",
@@ -640,8 +640,8 @@ function exportFinanceRowsToCSV(rows: FinanceRow[], currency: string) {
     const typeLabel = isAccommodation
       ? "Accommodation"
       : r.kind === "independent"
-        ? "Independent Visitor"
-        : "Visitor Stay"
+        ? "Independent Guest"
+        : "Guest Stay"
     const room = isAccommodation ? `Room ${r.roomNumber}` : "—"
     const visitor = isAccommodation ? "" : r.visitorName
     return [

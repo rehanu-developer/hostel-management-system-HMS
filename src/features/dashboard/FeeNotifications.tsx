@@ -32,7 +32,7 @@ export function FeeNotifications({ items }: FeeNotificationsProps) {
           <CardTitle>Fee Notifications</CardTitle>
           <CardDescription>
             {items.length === 0
-              ? "All students are up to date."
+              ? "All nomads are up to date."
               : `${items.length} unpaid ${items.length === 1 ? "record" : "records"} this month.`}
           </CardDescription>
         </div>
@@ -71,7 +71,7 @@ export function FeeNotifications({ items }: FeeNotificationsProps) {
                   asChild
                   className="h-8 w-8"
                 >
-                  <Link to={`/students/${n.studentId}`} aria-label="View student">
+                  <Link to={`/students/${n.studentId}`} aria-label="View nomad">
                     <ChevronRight className="h-4 w-4" />
                   </Link>
                 </Button>

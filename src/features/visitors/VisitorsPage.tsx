@@ -179,7 +179,7 @@ export function Visitors() {
   const handleCheckOut = (visitorId: string) => {
     checkOutVisitor(visitorId)
     const v = visitors.find((x) => x.id === visitorId)
-    toast.success(`${v?.name ?? "Visitor"} checked out`)
+    toast.success(`${v?.name ?? "Guest"} checked out`)
   }
 
   const handleChangeStatus = (visitorId: string, status: VisitorStatus) => {
@@ -189,13 +189,13 @@ export function Visitors() {
     }
     updateVisitor(visitorId, patch)
     const v = visitors.find((x) => x.id === visitorId)
-    toast.success(`${v?.name ?? "Visitor"} → ${status}`)
+    toast.success(`${v?.name ?? "Guest"} → ${status}`)
   }
 
   const handleChangePayment = (visitorId: string, paymentStatus: PaymentStatus) => {
     updateVisitor(visitorId, { paymentStatus })
     const v = visitors.find((x) => x.id === visitorId)
-    toast.success(`${v?.name ?? "Visitor"} payment → ${paymentStatus}`)
+    toast.success(`${v?.name ?? "Guest"} payment → ${paymentStatus}`)
   }
 
   const handleEditSave = (patch: Partial<Visitor>) => {
@@ -218,12 +218,12 @@ export function Visitors() {
   return (
     <>
       <PageHeader
-        title="Visitors"
-        description="Manage visitor check-ins and hostel guest records."
+        title="Guests"
+        description="Manage guest check-ins and hostel guest records."
         actions={
           <Button onClick={() => setAddOpen(true)}>
             <Plus className="h-3.5 w-3.5" />
-            Add Visitor
+            Add Guest
           </Button>
         }
       />
@@ -240,7 +240,7 @@ export function Visitors() {
           <StatChip
             label="Pending Payment"
             value={visitors.filter((v) => v.paymentStatus !== "Paid").length}
-            sub="visitors"
+            sub="guests"
           />
           <StatChip
             label="Today's Charges"
@@ -309,8 +309,8 @@ export function Visitors() {
             </colgroup>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead className="pl-6">Visitor</TableHead>
-                <TableHead>Visiting Student</TableHead>
+                <TableHead className="pl-6">Guest</TableHead>
+                <TableHead>Visiting Nomad</TableHead>
                 <TableHead>Hostel / Room</TableHead>
                 <TableHead>Relationship</TableHead>
                 <TableHead>Status</TableHead>
@@ -378,7 +378,7 @@ export function Visitors() {
                       <TableCell className="text-[14px]">
                         {v.kind === "independent" ? (
                           <span className="text-[var(--muted-foreground)] italic">
-                            Independent
+                            Independent Guest
                           </span>
                         ) : (
                           stu?.name ?? "—"
@@ -422,7 +422,7 @@ export function Visitors() {
 
         <div className="flex items-center justify-between text-xs text-[var(--muted-foreground)]">
           <span>
-            Showing {rows.length} of {visitors.length} visitor records
+            Showing {rows.length} of {visitors.length} guest records
           </span>
           <span>
             Check-in {visitors.length > 0
@@ -493,11 +493,11 @@ function EmptyVisitorsState({ onAdd }: { onAdd: () => void }) {
         No visitors found
       </h3>
       <p className="mt-1 max-w-sm text-sm text-[var(--muted-foreground)]">
-        Try changing your search or filters, or add a new visitor.
+        Try changing your search or filters, or add a new guest.
       </p>
       <Button onClick={onAdd} className="mt-4">
         <Plus className="h-3.5 w-3.5" />
-        Add Visitor
+        Add Guest
       </Button>
     </div>
   )

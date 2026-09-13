@@ -177,7 +177,7 @@ export function StudentsDataTable({
                 aria-label="Select all rows on this page"
               />
             </TableHead>
-            <TableHead>Student</TableHead>
+            <TableHead>Nomad</TableHead>
             <TableHead>Hostel</TableHead>
             <TableHead>Room</TableHead>
             <TableHead>Phone</TableHead>
@@ -531,7 +531,7 @@ function TableSkeleton() {
           <TableHead className="w-[44px] pl-6">
             <Skeleton className="h-4 w-4 rounded-sm" />
           </TableHead>
-          <TableHead>Student</TableHead>
+          <TableHead>Nomad</TableHead>
           <TableHead>Hostel</TableHead>
           <TableHead>Room</TableHead>
           <TableHead>Phone</TableHead>

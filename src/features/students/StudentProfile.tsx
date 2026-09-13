@@ -168,7 +168,7 @@ export function StudentProfile({ onEdit }: StudentProfileProps) {
                 <CardTitle>Personal Information</CardTitle>
               </CardHeader>
               <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <DetailRow label="Student ID" value={student.studentCode} />
+                <DetailRow label="Nomad ID" value={student.studentCode} />
                 <DetailRow label="Full Name" value={student.name} />
                 <DetailRow label="Phone" value={student.phone} />
                 <DetailRow

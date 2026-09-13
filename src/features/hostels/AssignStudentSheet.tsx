@@ -188,7 +188,7 @@ export function AssignStudentSheet({
         className="flex w-full flex-col gap-0 sm:max-w-lg"
       >
         <SheetHeader className="border-b border-[var(--border)] pb-4">
-          <SheetTitle>Assign Student</SheetTitle>
+          <SheetTitle>Assign Nomad</SheetTitle>
           <SheetDescription>
             Assign a student to a bed in Room {room.number} ({hostel.name}).
           </SheetDescription>
@@ -198,7 +198,7 @@ export function AssignStudentSheet({
           {/* Student search */}
           <section className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>Student</Label>
+              <Label>Nomad</Label>
               {selectedStudent && (
                 <button
                   type="button"
@@ -220,11 +220,11 @@ export function AssignStudentSheet({
                 <div className="relative">
                   <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--muted-foreground)]" />
                   <Input
-                    placeholder="Search students..."
+                    placeholder="Search nomads..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     className="h-9 pl-8"
-                    aria-label="Search students to assign"
+                    aria-label="Search nomads to assign"
                   />
                 </div>
                 <div className="max-h-72 overflow-y-auto rounded-lg border border-[var(--border)] bg-[var(--card)]">
@@ -437,7 +437,7 @@ export function AssignStudentSheet({
           </Button>
           <Button onClick={handleConfirm} disabled={!canConfirm} isSubmitting={isSubmitting}>
             <UserPlus className="h-3.5 w-3.5" />
-            {isSubmitting ? "Assigning…" : "Assign Student"}
+            {isSubmitting ? "Assigning…" : "Assign Nomad"}
           </Button>
         </SheetFooter>
       </SheetContent>

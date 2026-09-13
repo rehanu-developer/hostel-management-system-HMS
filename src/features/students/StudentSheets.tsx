@@ -48,7 +48,7 @@ export function StudentSheet({
         >
           <SheetHeader className="border-b border-[var(--border)] pb-4">
             <SheetTitle>
-              {mode === "add" ? "Add Student" : "Edit Student"}
+              {mode === "add" ? "Add Nomad" : "Edit Nomad"}
             </SheetTitle>
             <SheetDescription>
               {mode === "add"
@@ -66,7 +66,7 @@ export function StudentSheet({
               excludeStudentId={student?.id}
               onSubmit={onSubmit}
               onCancel={() => onOpenChange(false)}
-              submitLabel={mode === "add" ? "Add Student" : "Save Changes"}
+              submitLabel={mode === "add" ? "Add Nomad" : "Save Changes"}
               onDirtyChange={setIsDirty}
             />
           </div>

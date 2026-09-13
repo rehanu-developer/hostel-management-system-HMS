@@ -11,26 +11,20 @@ import type {
 export const mockHostels: Hostel[] = [
   {
     id: "h1",
-    name: "Al-Noor Residency",
-    location: "Block A, Main Boulevard",
+    name: "A",
+    location: "G-12 near SLS School",
     status: "Active",
   },
   {
     id: "h2",
-    name: "Blue Heights",
-    location: "Sector 7, University Road",
+    name: "C",
+    location: "G-12 near SLS School",
     status: "Active",
   },
   {
     id: "h3",
-    name: "Green View Hostel",
-    location: "Garden Town",
-    status: "Active",
-  },
-  {
-    id: "h4",
-    name: "Sunrise Lodge",
-    location: "Model Town, Block C",
+    name: "D",
+    location: "G-12 near SLS School",
     status: "Active",
   },
 ]
@@ -57,18 +51,12 @@ export const mockRooms: Room[] = [
   { id: "r14", hostelId: "h3", number: "G-02", capacity: 3, monthlyPrice: 14000 },
   { id: "r15", hostelId: "h3", number: "G-03", capacity: 4, monthlyPrice: 16500 },
   { id: "r16", hostelId: "h3", number: "F-01", capacity: 2, monthlyPrice: 12500 },
-
-  // Sunrise Lodge (h4) — significant vacancies (mostly empty)
-  { id: "r17", hostelId: "h4", number: "A-101", capacity: 2, monthlyPrice: 11000 },
-  { id: "r18", hostelId: "h4", number: "A-102", capacity: 3, monthlyPrice: 13000 },
-  { id: "r19", hostelId: "h4", number: "A-103", capacity: 2, monthlyPrice: 11500 },
-  { id: "r20", hostelId: "h4", number: "B-201", capacity: 4, monthlyPrice: 15000 },
 ]
 
 export const mockStudents: Student[] = [
   {
     id: "s1",
-    studentCode: "STU-1024",
+    studentCode: "NOM-1024",
     name: "Ahmed Khan",
     phone: "0300-1234567",
     email: "ahmed.khan@example.com",
@@ -91,7 +79,7 @@ export const mockStudents: Student[] = [
   },
   {
     id: "s2",
-    studentCode: "STU-1025",
+    studentCode: "NOM-1025",
     name: "Bilal Ahmed",
     phone: "0321-2345678",
     email: "bilal.ahmed@example.com",
@@ -114,7 +102,7 @@ export const mockStudents: Student[] = [
   },
   {
     id: "s3",
-    studentCode: "STU-1026",
+    studentCode: "NOM-1026",
     name: "Hassan Raza",
     phone: "0333-3456789",
     email: "hassan.raza@example.com",
@@ -132,7 +120,7 @@ export const mockStudents: Student[] = [
   },
   {
     id: "s4",
-    studentCode: "STU-1027",
+    studentCode: "NOM-1027",
     name: "Usman Tariq",
     phone: "0345-4567890",
     email: "usman.tariq@example.com",
@@ -155,7 +143,7 @@ export const mockStudents: Student[] = [
   },
   {
     id: "s5",
-    studentCode: "STU-1028",
+    studentCode: "NOM-1028",
     name: "Saad Ibrahim",
     phone: "0301-5678901",
     email: "saad.ibrahim@example.com",
@@ -173,7 +161,7 @@ export const mockStudents: Student[] = [
   },
   {
     id: "s6",
-    studentCode: "STU-1029",
+    studentCode: "NOM-1029",
     name: "Zain Ali",
     phone: "0312-6789012",
     email: "zain.ali@example.com",
@@ -196,7 +184,7 @@ export const mockStudents: Student[] = [
   },
   {
     id: "s7",
-    studentCode: "STU-1030",
+    studentCode: "NOM-1030",
     name: "Talha Sheikh",
     phone: "0322-7890123",
     email: "talha.sheikh@example.com",
@@ -214,7 +202,7 @@ export const mockStudents: Student[] = [
   },
   {
     id: "s8",
-    studentCode: "STU-1031",
+    studentCode: "NOM-1031",
     name: "Hamza Yousuf",
     phone: "0334-8901234",
     email: "hamza.yousuf@example.com",
@@ -233,7 +221,7 @@ export const mockStudents: Student[] = [
   },
   {
     id: "s9",
-    studentCode: "STU-1032",
+    studentCode: "NOM-1032",
     name: "Faizan Iqbal",
     phone: "0305-9012345",
     email: "faizan.iqbal@example.com",
@@ -251,7 +239,7 @@ export const mockStudents: Student[] = [
   },
   {
     id: "s10",
-    studentCode: "STU-1033",
+    studentCode: "NOM-1033",
     name: "Asad Mehmood",
     phone: "0315-0123456",
     email: "asad.mehmood@example.com",
@@ -269,7 +257,7 @@ export const mockStudents: Student[] = [
   },
   {
     id: "s11",
-    studentCode: "STU-1034",
+    studentCode: "NOM-1034",
     name: "Junaid Akhtar",
     phone: "0325-1234567",
     email: "junaid.akhtar@example.com",
@@ -287,7 +275,7 @@ export const mockStudents: Student[] = [
   },
   {
     id: "s12",
-    studentCode: "STU-1035",
+    studentCode: "NOM-1035",
     name: "Mubashir Hassan",
     phone: "0335-2345678",
     email: "mubashir.hassan@example.com",
@@ -305,7 +293,7 @@ export const mockStudents: Student[] = [
   },
   {
     id: "s13",
-    studentCode: "STU-1036",
+    studentCode: "NOM-1036",
     name: "Ahsan Nawaz",
     phone: "0345-3456789",
     email: "ahsan.nawaz@example.com",
@@ -323,7 +311,7 @@ export const mockStudents: Student[] = [
   },
   {
     id: "s14",
-    studentCode: "STU-1037",
+    studentCode: "NOM-1037",
     name: "Shahzaib Khan",
     phone: "0305-4567890",
     email: "shahzaib.khan@example.com",
@@ -341,7 +329,7 @@ export const mockStudents: Student[] = [
   },
   {
     id: "s15",
-    studentCode: "STU-1038",
+    studentCode: "NOM-1038",
     name: "Moiz Anwar",
     phone: "0315-5678901",
     email: "moiz.anwar@example.com",
@@ -360,7 +348,7 @@ export const mockStudents: Student[] = [
   },
   {
     id: "s16",
-    studentCode: "STU-1039",
+    studentCode: "NOM-1039",
     name: "Daniyal Aslam",
     phone: "0325-6789012",
     email: "daniyal.aslam@example.com",
@@ -378,7 +366,7 @@ export const mockStudents: Student[] = [
   },
   {
     id: "s17",
-    studentCode: "STU-1040",
+    studentCode: "NOM-1040",
     name: "Haris Siddiqui",
     phone: "0335-7890123",
     email: "haris.siddiqui@example.com",
@@ -396,7 +384,7 @@ export const mockStudents: Student[] = [
   },
   {
     id: "s18",
-    studentCode: "STU-1041",
+    studentCode: "NOM-1041",
     name: "Rehan Malik",
     phone: "0345-8901234",
     email: "rehan.malik@example.com",
@@ -869,7 +857,7 @@ export const mockVisitors: Visitor[] = [
     phone: "0300-8899776",
     cnic: "35202-8899776-9",
     studentId: "s17",
-    hostelId: "h4",
+    hostelId: "h3",
     roomId: "r11",
     relationship: "Other",
     kind: "linked",

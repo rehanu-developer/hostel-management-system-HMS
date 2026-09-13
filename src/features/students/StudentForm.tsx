@@ -47,7 +47,7 @@ export function StudentForm({
   excludeStudentId,
   onSubmit,
   onCancel,
-  submitLabel = "Add Student",
+  submitLabel = "Add Nomad",
   isSubmitting: isSubmittingProp,
   onDirtyChange,
 }: StudentFormProps) {
@@ -181,9 +181,9 @@ export function StudentForm({
                 name="studentCode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel required>Student ID</FormLabel>
+                    <FormLabel required>Nomad ID</FormLabel>
                     <FormControl>
-                      <Input placeholder="STU-1042" {...field} />
+                      <Input placeholder="NOM-1042" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

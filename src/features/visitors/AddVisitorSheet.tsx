@@ -203,7 +203,7 @@ export function AddVisitorSheet({
           className="flex w-full flex-col gap-0 sm:max-w-xl"
         >
           <SheetHeader className="border-b border-[var(--border)] pb-4">
-            <SheetTitle>Add Visitor</SheetTitle>
+            <SheetTitle>Add Guest</SheetTitle>
             <SheetDescription>
               Record a new visitor. Linked visitors are tied to a hostel
               member; independent visitors pay their own stay.
@@ -220,7 +220,7 @@ export function AddVisitorSheet({
                 {/* Visitor type */}
                 <section className="space-y-3">
                   <h3 className="font-display text-base font-semibold tracking-tight text-[var(--foreground)]">
-                    Visitor Type
+                    Guest Type
                   </h3>
                   <div className="grid grid-cols-2 gap-2">
                     <button
@@ -248,7 +248,7 @@ export function AddVisitorSheet({
                           : "border-[var(--border)] bg-[var(--card)] hover:bg-[var(--accent)]",
                       )}
                     >
-                      <div className="text-sm font-medium">Independent Visitor</div>
+                      <div className="text-sm font-medium">Independent Guest</div>
                       <div className="mt-0.5 text-[11px] text-[var(--muted-foreground)]">
                         Walk-in guest; pays their own stay
                       </div>
@@ -261,7 +261,7 @@ export function AddVisitorSheet({
                   <section className="space-y-3">
                     <div className="flex items-center justify-between">
                       <h3 className="font-display text-base font-semibold tracking-tight text-[var(--foreground)]">
-                        Visiting Student
+                        Visiting Nomad
                       </h3>
                       {selectedStudent && (
                         <button
@@ -360,7 +360,7 @@ export function AddVisitorSheet({
                 {/* Step 2: Visitor info */}
                 <section className="space-y-3">
                   <h3 className="font-display text-base font-semibold tracking-tight text-[var(--foreground)]">
-                    Visitor Information
+                    Guest Information
                   </h3>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <FormField
@@ -368,7 +368,7 @@ export function AddVisitorSheet({
                       name="name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel required>Visitor Name</FormLabel>
+                          <FormLabel required>Guest Name</FormLabel>
                           <FormControl>
                             <Input placeholder="e.g. Rashid Khan" {...field} />
                           </FormControl>
@@ -562,7 +562,7 @@ export function AddVisitorSheet({
                   isSubmitting={isSubmitting}
                 >
                   <UserPlus className="h-3.5 w-3.5" />
-                  {isSubmitting ? "Checking in…" : "Check In Visitor"}
+                  {isSubmitting ? "Checking in…" : "Check In Guest"}
                 </Button>
               </SheetFooter>
             </form>

@@ -112,7 +112,7 @@ export function VisitorDetailSheet({
         <div className="flex-1 space-y-5 overflow-y-auto px-1 py-5">
           {/* Visitor */}
           <section className="space-y-3">
-            <h3 className="font-display text-sm font-semibold">Visitor</h3>
+            <h3 className="font-display text-sm font-semibold">Guest</h3>
             <div className="grid grid-cols-2 gap-3 rounded-md border border-[var(--border)] bg-[var(--card)] p-3 text-xs">
               <div>
                 <p className="text-[var(--muted-foreground)]">Phone</p>

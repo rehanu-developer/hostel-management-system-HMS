@@ -145,8 +145,8 @@ export function HostelDetailPage() {
     const stu = students.find((s) => s.id === studentId)
     toast.success(
       agreedMonthlyPrice !== undefined
-        ? `${stu?.name ?? "Student"} assigned · agreed price Rs ${agreedMonthlyPrice.toLocaleString()}`
-        : `${stu?.name ?? "Student"} assigned`,
+        ? `${stu?.name ?? "Nomad"} assigned · agreed price Rs ${agreedMonthlyPrice.toLocaleString()}`
+        : `${stu?.name ?? "Nomad"} assigned`,
     )
     setAssignFor(null)
   }
@@ -162,8 +162,8 @@ export function HostelDetailPage() {
     const stu = students.find((s) => s.id === studentId)
     toast.success(
       agreedMonthlyPrice !== undefined
-        ? `${stu?.name ?? "Student"} moved · agreed price Rs ${agreedMonthlyPrice.toLocaleString()}`
-        : `${stu?.name ?? "Student"} moved to new room`,
+        ? `${stu?.name ?? "Nomad"} moved · agreed price Rs ${agreedMonthlyPrice.toLocaleString()}`
+        : `${stu?.name ?? "Nomad"} moved to new room`,
     )
     setChangeFor(null)
   }

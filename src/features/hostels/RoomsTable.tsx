@@ -73,7 +73,7 @@ export function RoomsTable({
             <TableHead>Occupied</TableHead>
             <TableHead>Vacant</TableHead>
             <TableHead className="hidden lg:table-cell">Occupancy</TableHead>
-            <TableHead>Students</TableHead>
+            <TableHead>Nomads</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="pr-6 text-right">Actions</TableHead>
           </TableRow>
@@ -211,7 +211,7 @@ function EmptyRoomsRow() {
         <div className="flex flex-col items-center gap-2 text-sm text-[var(--muted-foreground)]">
           <DoorOpen className="h-5 w-5" />
           <p className="font-medium text-[var(--foreground)]">No rooms yet</p>
-          <p>Add a room to begin managing beds and student assignments.</p>
+          <p>Add a room to begin managing beds and nomad assignments.</p>
         </div>
       </TableCell>
     </TableRow>
@@ -229,7 +229,7 @@ function RoomsTableSkeleton() {
             <TableHead>Occupied</TableHead>
             <TableHead>Vacant</TableHead>
             <TableHead className="hidden lg:table-cell">Occupancy</TableHead>
-            <TableHead>Students</TableHead>
+            <TableHead>Nomads</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="pr-6 text-right">Actions</TableHead>
           </TableRow>

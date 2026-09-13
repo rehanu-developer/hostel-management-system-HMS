@@ -40,7 +40,7 @@ export function FinanceFilters({ filters, onChange, hostels, months, onClear }: 
         <div className="relative min-w-[200px] flex-1 sm:max-w-xs">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--muted-foreground)]" />
           <Input
-            placeholder="Search student, ID, phone, visitor…"
+            placeholder="Search nomad, ID, phone, guest…"
             className="pl-9"
             value={filters.search}
             onChange={(e) => set({ search: e.target.value })}
@@ -70,8 +70,8 @@ export function FinanceFilters({ filters, onChange, hostels, months, onClear }: 
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Payment Types</SelectItem>
-            <SelectItem value="accommodation">Student Accommodation</SelectItem>
-            <SelectItem value="visitor">Visitor Stay</SelectItem>
+            <SelectItem value="accommodation">Nomad Accommodation</SelectItem>
+            <SelectItem value="visitor">Guest Stay</SelectItem>
           </SelectContent>
         </Select>
 
@@ -168,7 +168,7 @@ export function FinanceFilters({ filters, onChange, hostels, months, onClear }: 
           )}
           {filters.type !== "all" && (
             <ActiveBadge
-              label={`Type: ${filters.type === "accommodation" ? "Accommodation" : "Visitor Stay"}`}
+              label={`Type: ${filters.type === "accommodation" ? "Accommodation" : "Guest Stay"}`}
               onRemove={() => set({ type: "all" })}
             />
           )}

@@ -59,7 +59,7 @@ export function HostelsPage() {
     <>
       <PageHeader
         title="Hostels & Rooms"
-        description="Manage hostel locations, rooms, beds and student accommodation."
+        description="Manage hostel locations, rooms, beds and nomad accommodation."
         actions={
           <Button onClick={() => setAddHostelOpen(true)}>
             <Plus className="h-3.5 w-3.5" />

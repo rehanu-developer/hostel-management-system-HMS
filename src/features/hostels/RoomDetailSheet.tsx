@@ -189,7 +189,7 @@ export function RoomDetailSheet({
                           size="icon"
                           className="h-7 w-7"
                           onClick={() => navigate(`/students/${bed.student!.id}`)}
-                          aria-label="Open student profile"
+                          aria-label="Open nomad profile"
                         >
                           <ExternalLink className="h-3.5 w-3.5" />
                         </Button>
