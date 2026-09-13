@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import { Plus, Search } from "lucide-react"
+import { Check, Plus, Search } from "lucide-react"
 import { PageHeader } from "@/components/layout/PageHeader"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -20,6 +20,19 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { toast } from "sonner"
 import {
   visitorStatusVariant,
@@ -30,9 +43,11 @@ import { VisitorDetailSheet } from "./VisitorDetailSheet"
 import { useSheetCloseGuard } from "@/features/students/useSheetCloseGuard.tsx"
 import { useDataStore } from "@/stores/dataStore"
 import { formatCurrency, formatDate } from "@/lib/utils"
-import type { Visitor } from "@/types"
+import type { PaymentStatus, Visitor, VisitorStatus } from "@/types"
 
 type StatusFilter = "all" | "active" | "checked"
+// Visitor payment filter — excludes "Partially Paid" per UX requirement
+type PaymentFilter = "all" | "paid" | "pending" | "outstanding"
 
 export function Visitors() {
   const hostels = useDataStore((s) => s.hostels)
@@ -47,6 +62,7 @@ export function Visitors() {
   const [addOpen, setAddOpen] = useState(false)
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
+  const [paymentFilter, setPaymentFilter] = useState<PaymentFilter>("all")
   const [active, setActive] = useState<Visitor | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isDirty, setIsDirty] = useState(false)
@@ -92,21 +108,33 @@ export function Visitors() {
             .toLowerCase()
           if (!hay.includes(q)) return false
         }
-        if (statusFilter === "active" && v.status !== "Currently Visiting")
+        if (statusFilter === "active" && v.status !== "Visiting")
           return false
         if (statusFilter === "checked" && v.status !== "Checked Out")
           return false
+        if (paymentFilter !== "all") {
+          const cur = (v.paymentStatus ?? "").toLowerCase().replace(/\s+/g, "")
+          if (paymentFilter === "paid" && cur !== "paid") return false
+          if (paymentFilter === "pending" && cur !== "pending") return false
+          if (paymentFilter === "outstanding" && cur !== "outstanding") return false
+        }
         return true
       })
       .sort(
         (a, b) =>
           new Date(b.checkIn).getTime() - new Date(a.checkIn).getTime(),
       )
-  }, [visitors, search, statusFilter, hostelById, roomById, studentById])
+  }, [
+    visitors,
+    search,
+    statusFilter,
+    paymentFilter,
+    hostelById,
+    roomById,
+    studentById,
+  ])
 
-  const activeCount = visitors.filter(
-    (v) => v.status === "Currently Visiting",
-  ).length
+  const activeCount = visitors.filter((v) => v.status === "Visiting").length
 
   const handleConfirmAdd = (values: {
     name: string
@@ -140,7 +168,7 @@ export function Visitors() {
       nights: values.nights,
       perNight: values.perNight,
       total,
-      status: "Currently Visiting",
+      status: "Visiting",
       paymentStatus: "Pending",
       notes: values.notes,
     })
@@ -152,6 +180,22 @@ export function Visitors() {
     checkOutVisitor(visitorId)
     const v = visitors.find((x) => x.id === visitorId)
     toast.success(`${v?.name ?? "Visitor"} checked out`)
+  }
+
+  const handleChangeStatus = (visitorId: string, status: VisitorStatus) => {
+    const patch: Partial<Visitor> = { status }
+    if (status === "Checked Out") {
+      patch.actualCheckOut = new Date().toISOString()
+    }
+    updateVisitor(visitorId, patch)
+    const v = visitors.find((x) => x.id === visitorId)
+    toast.success(`${v?.name ?? "Visitor"} → ${status}`)
+  }
+
+  const handleChangePayment = (visitorId: string, paymentStatus: PaymentStatus) => {
+    updateVisitor(visitorId, { paymentStatus })
+    const v = visitors.find((x) => x.id === visitorId)
+    toast.success(`${v?.name ?? "Visitor"} payment → ${paymentStatus}`)
   }
 
   const handleEditSave = (patch: Partial<Visitor>) => {
@@ -202,7 +246,7 @@ export function Visitors() {
             label="Today's Charges"
             value={formatCurrency(
               visitors
-                .filter((v) => v.status === "Currently Visiting")
+                .filter((v) => v.status === "Visiting")
                 .reduce((sum, v) => sum + v.total, 0),
               settings.currency,
             )}
@@ -231,8 +275,22 @@ export function Visitors() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All statuses</SelectItem>
-              <SelectItem value="active">Currently Visiting</SelectItem>
+              <SelectItem value="active">Visiting</SelectItem>
               <SelectItem value="checked">Checked Out</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select
+            value={paymentFilter}
+            onValueChange={(v) => setPaymentFilter(v as PaymentFilter)}
+          >
+            <SelectTrigger className="h-9 w-full sm:w-[170px]">
+              <SelectValue placeholder="All payments" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All payments</SelectItem>
+              <SelectItem value="paid">Paid</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="outstanding">Outstanding</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -339,17 +397,17 @@ export function Visitors() {
                           </Badge>
                         )}
                       </TableCell>
-                      <TableCell>
-                        <Badge variant={visitorStatusVariant[v.status]}>
-                          {v.status}
-                        </Badge>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        <VisitorStatusDropdown
+                          visitor={v}
+                          onChange={(s) => handleChangeStatus(v.id, s)}
+                        />
                       </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={paymentStatusVariant[v.paymentStatus]}
-                        >
-                          {v.paymentStatus}
-                        </Badge>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        <VisitorPaymentDropdown
+                          visitor={v}
+                          onChange={(p) => handleChangePayment(v.id, p)}
+                        />
                       </TableCell>
                       <TableCell className="pr-6 text-right tabular-nums text-[14px]">
                         {formatCurrency(v.total, settings.currency)}
@@ -449,4 +507,136 @@ function relationshipVariant(rel: string | null) {
   if (rel === "Family Member") return "info-soft"
   if (rel === "Friend") return "neutral-soft"
   return "muted"
+}
+
+function VisitorStatusDropdown({
+  visitor,
+  onChange,
+}: {
+  visitor: Visitor
+  onChange: (s: VisitorStatus) => void
+}) {
+  const current = visitor.status as VisitorStatus
+  const options: VisitorStatus[] = ["Visiting", "Checked Out"]
+  return (
+    <DropdownMenu>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              aria-label={`Change status for ${visitor.name}`}
+              className="inline-flex items-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+            >
+              <Badge
+                variant={visitorStatusVariant[current]}
+                className="whitespace-nowrap"
+              >
+                {current}
+              </Badge>
+            </button>
+          </DropdownMenuTrigger>
+        </TooltipTrigger>
+        <TooltipContent>Change status</TooltipContent>
+      </Tooltip>
+      <DropdownMenuContent align="end" className="w-44">
+        <DropdownMenuLabel className="text-[11px] font-medium uppercase tracking-wider">
+          Set status
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {options.map((s) => (
+          <DropdownMenuItem
+            key={s}
+            onSelect={(e) => {
+              e.preventDefault()
+              if (s !== current) onChange(s)
+            }}
+            disabled={s === current}
+          >
+            <span
+              className={`flex h-6 w-6 items-center justify-center rounded-full ${
+                s === current
+                  ? "bg-[var(--primary)]/15 text-[var(--primary)]"
+                  : "bg-[var(--muted)] text-[var(--muted-foreground)]"
+              }`}
+            >
+              {s === current ? (
+                <Check className="h-3.5 w-3.5" />
+              ) : (
+                <span className="h-1.5 w-1.5 rounded-full bg-current" />
+              )}
+            </span>
+            {s}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
+function VisitorPaymentDropdown({
+  visitor,
+  onChange,
+}: {
+  visitor: Visitor
+  onChange: (p: PaymentStatus) => void
+}) {
+  const current = visitor.paymentStatus as PaymentStatus
+  // Exclude "Partially Paid" per UX — it's a transitional state, not a
+  // category managers filter on.
+  const options: PaymentStatus[] = ["Paid", "Pending", "Outstanding"]
+  return (
+    <DropdownMenu>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              aria-label={`Change payment for ${visitor.name}`}
+              className="inline-flex items-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+            >
+              <Badge
+                variant={paymentStatusVariant[current]}
+                className="whitespace-nowrap"
+              >
+                {current}
+              </Badge>
+            </button>
+          </DropdownMenuTrigger>
+        </TooltipTrigger>
+        <TooltipContent>Change payment</TooltipContent>
+      </Tooltip>
+      <DropdownMenuContent align="end" className="w-44">
+        <DropdownMenuLabel className="text-[11px] font-medium uppercase tracking-wider">
+          Set payment
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {options.map((p) => (
+          <DropdownMenuItem
+            key={p}
+            onSelect={(e) => {
+              e.preventDefault()
+              if (p !== current) onChange(p)
+            }}
+            disabled={p === current}
+          >
+            <span
+              className={`flex h-6 w-6 items-center justify-center rounded-full ${
+                p === current
+                  ? "bg-[var(--primary)]/15 text-[var(--primary)]"
+                  : "bg-[var(--muted)] text-[var(--muted-foreground)]"
+              }`}
+            >
+              {p === current ? (
+                <Check className="h-3.5 w-3.5" />
+              ) : (
+                <span className="h-1.5 w-1.5 rounded-full bg-current" />
+              )}
+            </span>
+            {p}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
 }

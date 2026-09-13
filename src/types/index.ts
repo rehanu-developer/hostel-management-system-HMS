@@ -1,7 +1,7 @@
 export type StudentStatus = "Active" | "Left" | "Suspended"
 export type PaymentStatus = "Paid" | "Pending" | "Partially Paid" | "Outstanding"
 export type Relationship = "Friend" | "Family Member" | "Other" | null
-export type VisitorStatus = "Currently Visiting" | "Checked Out"
+export type VisitorStatus = "Visiting" | "Checked Out"
 export type PaymentType = "accommodation" | "visitor"
 export type VisitorKind = "linked" | "independent"
 

@@ -4,7 +4,7 @@ import { badgeVariants } from "@/components/ui/badge"
 export type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>["variant"]>
 
 export const visitorStatusVariant: Record<string, BadgeVariant> = {
-  "Currently Visiting": "success-soft",
+  "Visiting": "success-soft",
   "Checked Out": "neutral-soft",
 }
 

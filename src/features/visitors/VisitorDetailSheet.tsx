@@ -66,7 +66,7 @@ export function VisitorDetailSheet({
     )
   }
 
-  const isActive = visitor.status === "Currently Visiting"
+  const isActive = visitor.status === "Visiting"
   const amountPaid = visitor.paid ?? 0
   const outstanding = Math.max(0, visitor.total - amountPaid)
 

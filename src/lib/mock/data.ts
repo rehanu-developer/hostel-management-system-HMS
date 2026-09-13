@@ -580,7 +580,7 @@ export const mockVisitors: Visitor[] = [
     perNight: 2000,
     total: 4000,
     paid: 4000,
-    status: "Currently Visiting",
+    status: "Visiting",
     paymentStatus: "Paid",
   },
   {
@@ -599,7 +599,7 @@ export const mockVisitors: Visitor[] = [
     perNight: 1500,
     total: 1500,
     paid: 0,
-    status: "Currently Visiting",
+    status: "Visiting",
     paymentStatus: "Outstanding",
   },
 
@@ -619,7 +619,7 @@ export const mockVisitors: Visitor[] = [
     perNight: 900,
     total: 1800,
     paid: 900,
-    status: "Currently Visiting",
+    status: "Visiting",
     paymentStatus: "Partially Paid",
   },
   {

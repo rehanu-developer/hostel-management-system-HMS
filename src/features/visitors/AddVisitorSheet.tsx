@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import {
   Select,
@@ -220,7 +219,9 @@ export function AddVisitorSheet({
               <div className="flex-1 space-y-6 overflow-y-auto px-1 py-5">
                 {/* Visitor type */}
                 <section className="space-y-3">
-                  <Label className="text-sm font-medium">Visitor Type</Label>
+                  <h3 className="font-display text-base font-semibold tracking-tight text-[var(--foreground)]">
+                    Visitor Type
+                  </h3>
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       type="button"
@@ -259,9 +260,9 @@ export function AddVisitorSheet({
                 {kind === "linked" ? (
                   <section className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <Label className="text-sm font-medium">
+                      <h3 className="font-display text-base font-semibold tracking-tight text-[var(--foreground)]">
                         Visiting Student
-                      </Label>
+                      </h3>
                       {selectedStudent && (
                         <button
                           type="button"
@@ -331,7 +332,9 @@ export function AddVisitorSheet({
                   </section>
                 ) : (
                   <section className="space-y-3">
-                    <Label className="text-sm font-medium">Hostel</Label>
+                    <h3 className="font-display text-base font-semibold tracking-tight text-[var(--foreground)]">
+                      Hostel
+                    </h3>
                     <Select
                       value={selectedHostelId}
                       onValueChange={setSelectedHostelId}
@@ -356,9 +359,9 @@ export function AddVisitorSheet({
 
                 {/* Step 2: Visitor info */}
                 <section className="space-y-3">
-                  <Label className="text-sm font-medium">
+                  <h3 className="font-display text-base font-semibold tracking-tight text-[var(--foreground)]">
                     Visitor Information
-                  </Label>
+                  </h3>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <FormField
                       control={form.control}
@@ -433,7 +436,9 @@ export function AddVisitorSheet({
 
                 {/* Step 3: Stay details */}
                 <section className="space-y-3">
-                  <Label className="text-sm font-medium">Stay Details</Label>
+                  <h3 className="font-display text-base font-semibold tracking-tight text-[var(--foreground)]">
+                    Stay Details
+                  </h3>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <FormField
                       control={form.control}
