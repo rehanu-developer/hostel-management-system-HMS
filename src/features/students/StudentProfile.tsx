@@ -1,5 +1,17 @@
 import { useNavigate, useParams } from "react-router-dom"
-import { ArrowLeft, Pencil, Mail, Phone, MapPin, IdCard, User } from "lucide-react"
+import { useState } from "react"
+import { toast } from "sonner"
+import {
+  ArrowLeft,
+  Pencil,
+  Mail,
+  Phone,
+  MapPin,
+  IdCard,
+  User,
+  Trash2,
+  ChevronDown,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -7,13 +19,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { DeleteStudentDialog } from "./DeleteStudentDialog"
+import {
   studentStatusLabel,
   studentStatusVariant,
   paymentStatusVariant,
 } from "./studentStatus"
 import { useDataStore, getStudentsInRoom } from "@/stores/dataStore"
 import { formatCurrency, formatDate } from "@/lib/utils"
-import type { StudentStatus, PaymentStatus } from "@/types"
+import type { StudentStatus, PaymentStatus, Payment } from "@/types"
 
 interface StudentProfileProps {
   onEdit: (studentId: string) => void
@@ -28,6 +47,9 @@ export function StudentProfile({ onEdit }: StudentProfileProps) {
   const payments = useDataStore((s) => s.payments)
   const roomHistory = useDataStore((s) => s.roomHistory)
   const currency = useDataStore((s) => s.settings.currency)
+  const deleteStudent = useDataStore((s) => s.deleteStudent)
+  const setPaymentStatus = useDataStore((s) => s.setPaymentStatus)
+  const [deleteOpen, setDeleteOpen] = useState(false)
 
   const student = students.find((s) => s.id === id)
 
@@ -90,10 +112,21 @@ export function StudentProfile({ onEdit }: StudentProfileProps) {
             </p>
           </div>
         </div>
-        <Button onClick={() => onEdit(student.id)} size="sm">
-          <Pencil className="h-3.5 w-3.5" />
-          Edit
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-[var(--destructive)]"
+            onClick={() => setDeleteOpen(true)}
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            Delete
+          </Button>
+          <Button onClick={() => onEdit(student.id)} size="sm">
+            <Pencil className="h-3.5 w-3.5" />
+            Edit
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-6 p-4 lg:p-6">
@@ -152,28 +185,35 @@ export function StudentProfile({ onEdit }: StudentProfileProps) {
               </CardContent>
             </Card>
 
-            {student.familyMember && (
+            {student.guardians.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Guardian / Family</CardTitle>
+                  <CardTitle>
+                    Guardian / Family
+                    <span className="ml-2 text-xs font-normal text-[var(--muted-foreground)]">
+                      {student.guardians.length}{" "}
+                      contact{student.guardians.length === 1 ? "" : "s"}
+                    </span>
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <DetailRow
-                    label="Name"
-                    value={student.familyMember.name}
-                  />
-                  <DetailRow
-                    label="Relation"
-                    value={student.familyMember.relation}
-                  />
-                  <DetailRow
-                    label="Phone"
-                    value={student.familyMember.phone}
-                  />
-                  <DetailRow
-                    label="CNIC"
-                    value={student.familyMember.cnic}
-                  />
+                <CardContent className="space-y-4">
+                  {student.guardians.map((g, idx) => (
+                    <div
+                      key={`${g.name}-${idx}`}
+                      className="grid grid-cols-1 gap-4 sm:grid-cols-2"
+                    >
+                      <DetailRow
+                        label={`Guardian ${idx + 1} · Name`}
+                        value={g.name}
+                      />
+                      <DetailRow label="Relation" value={g.relation} />
+                      <DetailRow label="Phone" value={g.phone} />
+                      <DetailRow label="CNIC" value={g.cnic} />
+                      {idx < student.guardians.length - 1 && (
+                        <Separator className="sm:col-span-2" />
+                      )}
+                    </div>
+                  ))}
                 </CardContent>
               </Card>
             )}
@@ -308,36 +348,20 @@ export function StudentProfile({ onEdit }: StudentProfileProps) {
                 ) : (
                   <ul className="divide-y divide-[var(--border)]">
                     {studentPayments.map((p) => (
-                      <li
+                      <PaymentHistoryRow
                         key={p.id}
-                        className="flex items-center justify-between gap-3 py-3"
-                      >
-                        <div>
-                          <p className="text-sm font-medium">
-                            {new Date(p.month + "-01").toLocaleDateString(
+                        payment={p}
+                        currency={currency}
+                        onChangeStatus={(next) => {
+                          setPaymentStatus(p.id, next as PaymentStatus)
+                          toast.success(
+                            `${new Date(p.month + "-01").toLocaleDateString(
                               "en-GB",
                               { month: "long", year: "numeric" },
-                            )}
-                          </p>
-                          <p className="text-xs text-[var(--muted-foreground)]">
-                            {p.paidDate
-                              ? `Paid on ${formatDate(p.paidDate)}`
-                              : "Not paid yet"}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <span className="text-sm tabular-nums">
-                            {formatCurrency(p.amount, currency)}
-                          </span>
-                          <Badge
-                            variant={
-                              paymentStatusVariant[p.status as PaymentStatus]
-                            }
-                          >
-                            {p.status}
-                          </Badge>
-                        </div>
-                      </li>
+                            )} marked as ${next}`,
+                          )
+                        }}
+                      />
                     ))}
                   </ul>
                 )}
@@ -346,6 +370,18 @@ export function StudentProfile({ onEdit }: StudentProfileProps) {
           </TabsContent>
         </Tabs>
       </div>
+
+      <DeleteStudentDialog
+        student={student}
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        onConfirm={(s) => {
+          deleteStudent(s.id)
+          toast.success(`${s.name} deleted`)
+          setDeleteOpen(false)
+          navigate("/students")
+        }}
+      />
     </>
   )
 }
@@ -417,6 +453,81 @@ function SummaryCard({
         <p className="mt-1 font-display text-lg font-semibold">{value}</p>
       </CardContent>
     </Card>
+  )
+}
+
+function PaymentHistoryRow({
+  payment,
+  currency,
+  onChangeStatus,
+}: {
+  payment: Payment
+  currency: string
+  onChangeStatus: (next: PaymentStatus) => void
+}) {
+  const monthLabel = new Date(payment.month + "-01").toLocaleDateString(
+    "en-GB",
+    { month: "long", year: "numeric" },
+  )
+  const paid = payment.paid ?? 0
+  return (
+    <li className="flex items-center justify-between gap-3 py-3">
+      <div>
+        <p className="text-sm font-medium">{monthLabel}</p>
+        <p className="text-xs text-[var(--muted-foreground)]">
+          {paid > 0 && payment.paidDate
+            ? `Paid on ${formatDate(payment.paidDate)}`
+            : paid > 0
+              ? `Paid ${formatCurrency(paid, currency)}`
+              : "Not paid yet"}
+        </p>
+      </div>
+      <div className="flex items-center gap-3">
+        <span className="text-sm tabular-nums">
+          {formatCurrency(payment.amount, currency)}
+        </span>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              aria-label={`Change status for ${monthLabel}`}
+              className="inline-flex items-center gap-1 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+            >
+              <Badge variant={paymentStatusVariant[payment.status as PaymentStatus]}>
+                {payment.status}
+                <ChevronDown className="ml-1 h-3 w-3" />
+              </Badge>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-44">
+            <DropdownMenuItem
+              onSelect={() => onChangeStatus("Paid")}
+              disabled={payment.status === "Paid"}
+            >
+              Paid
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={() => onChangeStatus("Partially Paid")}
+              disabled={payment.status === "Partially Paid"}
+            >
+              Partially Paid
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={() => onChangeStatus("Pending")}
+              disabled={payment.status === "Pending"}
+            >
+              Pending
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={() => onChangeStatus("Outstanding")}
+              disabled={payment.status === "Outstanding"}
+            >
+              Outstanding
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </li>
   )
 }
 

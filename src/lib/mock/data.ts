@@ -81,12 +81,12 @@ export const mockStudents: Student[] = [
     bedLabel: "A",
     checkIn: "2026-01-15",
     referencePerson: "Rashid Khan (Father)",
-    familyMember: {
+    guardians: [{
       name: "Rashid Khan",
       phone: "0300-7654321",
       cnic: "35202-7654321-2",
       relation: "Father",
-    },
+    }],
     notes: "Prefers ground floor.",
   },
   {
@@ -104,12 +104,12 @@ export const mockStudents: Student[] = [
     bedLabel: "B",
     checkIn: "2026-02-01",
     referencePerson: "Asma Ahmed (Mother)",
-    familyMember: {
+    guardians: [{
       name: "Asma Ahmed",
       phone: "0321-8765432",
       cnic: "35202-8765432-4",
       relation: "Mother",
-    },
+    }],
     notes: "",
   },
   {
@@ -127,7 +127,7 @@ export const mockStudents: Student[] = [
     bedLabel: "A",
     checkIn: "2026-01-20",
     referencePerson: "Imran Raza (Brother)",
-    familyMember: null,
+    guardians: [],
     notes: "",
   },
   {
@@ -145,12 +145,12 @@ export const mockStudents: Student[] = [
     bedLabel: "A",
     checkIn: "2026-03-05",
     referencePerson: "Tariq Mehmood (Father)",
-    familyMember: {
+    guardians: [{
       name: "Tariq Mehmood",
       phone: "0345-0987654",
       cnic: "35202-0987654-7",
       relation: "Father",
-    },
+    }],
     notes: "",
   },
   {
@@ -168,7 +168,7 @@ export const mockStudents: Student[] = [
     bedLabel: "A",
     checkIn: "2026-02-10",
     referencePerson: "Ibrahim Yusuf (Father)",
-    familyMember: null,
+    guardians: [],
     notes: "",
   },
   {
@@ -186,12 +186,12 @@ export const mockStudents: Student[] = [
     bedLabel: "B",
     checkIn: "2026-02-12",
     referencePerson: "Ali Hassan (Uncle)",
-    familyMember: {
+    guardians: [{
       name: "Ali Hassan",
       phone: "0312-2109876",
       cnic: "35202-2109876-0",
       relation: "Uncle",
-    },
+    }],
     notes: "",
   },
   {
@@ -209,7 +209,7 @@ export const mockStudents: Student[] = [
     bedLabel: "A",
     checkIn: "2026-01-10",
     referencePerson: "Sheikh Ahmed (Father)",
-    familyMember: null,
+    guardians: [],
     notes: "Pending fee dispute.",
   },
   {
@@ -228,7 +228,7 @@ export const mockStudents: Student[] = [
     checkIn: "2025-09-01",
     checkOut: "2026-06-30",
     referencePerson: "Yousuf Khan (Father)",
-    familyMember: null,
+    guardians: [],
     notes: "Completed course.",
   },
   {
@@ -246,7 +246,7 @@ export const mockStudents: Student[] = [
     bedLabel: "A",
     checkIn: "2026-03-15",
     referencePerson: "Iqbal Hussain (Father)",
-    familyMember: null,
+    guardians: [],
     notes: "",
   },
   {
@@ -264,7 +264,7 @@ export const mockStudents: Student[] = [
     bedLabel: "A",
     checkIn: "2026-02-20",
     referencePerson: "Mehmood Ali (Father)",
-    familyMember: null,
+    guardians: [],
     notes: "",
   },
   {
@@ -282,7 +282,7 @@ export const mockStudents: Student[] = [
     bedLabel: "B",
     checkIn: "2026-04-01",
     referencePerson: "Akhtar Hussain (Father)",
-    familyMember: null,
+    guardians: [],
     notes: "",
   },
   {
@@ -300,7 +300,7 @@ export const mockStudents: Student[] = [
     bedLabel: "A",
     checkIn: "2026-04-10",
     referencePerson: "Hassan Raza (Father)",
-    familyMember: null,
+    guardians: [],
     notes: "",
   },
   {
@@ -318,7 +318,7 @@ export const mockStudents: Student[] = [
     bedLabel: "A",
     checkIn: "2026-05-02",
     referencePerson: "Nawaz Sharif (Father)",
-    familyMember: null,
+    guardians: [],
     notes: "",
   },
   {
@@ -336,7 +336,7 @@ export const mockStudents: Student[] = [
     bedLabel: "B",
     checkIn: "2026-01-25",
     referencePerson: "Imran Khan (Father)",
-    familyMember: null,
+    guardians: [],
     notes: "Behavior issue.",
   },
   {
@@ -355,7 +355,7 @@ export const mockStudents: Student[] = [
     checkIn: "2025-08-15",
     checkOut: "2026-05-30",
     referencePerson: "Anwar Hussain (Father)",
-    familyMember: null,
+    guardians: [],
     notes: "Transferred to different city.",
   },
   {
@@ -373,7 +373,7 @@ export const mockStudents: Student[] = [
     bedLabel: "A",
     checkIn: "2026-05-15",
     referencePerson: "Aslam Khan (Father)",
-    familyMember: null,
+    guardians: [],
     notes: "",
   },
   {
@@ -391,7 +391,7 @@ export const mockStudents: Student[] = [
     bedLabel: "A",
     checkIn: "2026-06-01",
     referencePerson: "Siddiqui Ahmed (Father)",
-    familyMember: null,
+    guardians: [],
     notes: "",
   },
   {
@@ -409,7 +409,7 @@ export const mockStudents: Student[] = [
     bedLabel: "B",
     checkIn: "2026-06-10",
     referencePerson: "Malik Asif (Father)",
-    familyMember: null,
+    guardians: [],
     notes: "",
   },
 ]

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
-import { useForm } from "react-hook-form"
+import { useFieldArray, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { studentSchema, type StudentFormValues } from "@/lib/schemas"
 import {
@@ -22,8 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
 import { DatePicker } from "@/components/ui/date-picker"
+import { Plus, Trash2 } from "lucide-react"
 import { getVacantBedsInRoom } from "@/stores/dataStore"
 import type { Hostel, Room, Student, StudentStatus } from "@/types"
 
@@ -74,16 +74,24 @@ export function StudentForm({
       checkIn: defaultValues?.checkIn ?? today,
       checkOut: defaultValues?.checkOut,
       referencePerson: defaultValues?.referencePerson ?? "",
-      familyMember: defaultValues?.familyMember ?? null,
+      guardians: defaultValues?.guardians ?? [],
       notes: defaultValues?.notes ?? "",
     },
+  })
+
+  const {
+    fields: guardianFields,
+    append: appendGuardian,
+    remove: removeGuardian,
+  } = useFieldArray({
+    control: form.control,
+    name: "guardians",
   })
 
   // Watch fields for cascading selects
   const watchedHostel = form.watch("hostelId")
   const watchedRoom = form.watch("roomId")
   const watchedStatus = form.watch("status")
-  const hasGuardian = form.watch("familyMember") !== null
 
   // Notify parent of dirty state for unsaved-changes guard
   const isDirty = form.formState.isDirty
@@ -284,78 +292,128 @@ export function StudentForm({
             </div>
 
             {/* Guardian / family */}
-            <div className="space-y-2 rounded-md border border-[var(--border)] bg-[var(--muted)]/30 p-3">
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="has-guardian"
-                  checked={hasGuardian}
-                  onCheckedChange={(checked) => {
-                    form.setValue(
-                      "familyMember",
-                      checked
-                        ? { name: "", phone: "", cnic: "", relation: "" }
-                        : null,
-                    )
-                  }}
-                />
-                <Label htmlFor="has-guardian" className="text-sm font-medium">
-                  Add guardian / family contact
+            <div className="space-y-3 rounded-md border border-[var(--border)] bg-[var(--muted)]/30 p-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">
+                  Guardians / family contacts
                 </Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-7 gap-1 px-2 text-xs"
+                  onClick={() =>
+                    appendGuardian({
+                      name: "",
+                      phone: "",
+                      cnic: "",
+                      relation: "",
+                    })
+                  }
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  Add guardian
+                </Button>
               </div>
-              {hasGuardian && (
-                <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="familyMember.name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel required>Guardian name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Rashid Khan" {...field} value={field.value ?? ""} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="familyMember.phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel required>Guardian phone</FormLabel>
-                        <FormControl>
-                          <Input placeholder="0300-7654321" {...field} value={field.value ?? ""} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="familyMember.cnic"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel required>Guardian CNIC</FormLabel>
-                        <FormControl>
-                          <Input placeholder="35202-7654321-2" {...field} value={field.value ?? ""} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="familyMember.relation"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel required>Relation</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Father" {...field} value={field.value ?? ""} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+              {guardianFields.length === 0 ? (
+                <p className="rounded-md border border-dashed border-[var(--border)] bg-[var(--background)] px-3 py-2.5 text-xs text-[var(--muted-foreground)]">
+                  No guardians yet. Click "Add guardian" to record a parent,
+                  family contact or local guardian.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {guardianFields.map((g, idx) => (
+                    <div
+                      key={g.id}
+                      className="space-y-3 rounded-md border border-[var(--border)] bg-[var(--background)] p-3"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-medium uppercase tracking-wider text-[var(--muted-foreground)]">
+                          Guardian {idx + 1}
+                        </span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 gap-1 px-2 text-xs text-[var(--destructive)]"
+                          onClick={() => removeGuardian(idx)}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          Remove
+                        </Button>
+                      </div>
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <FormField
+                          control={form.control}
+                          name={`guardians.${idx}.name`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel required>Name</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="Rashid Khan"
+                                  {...field}
+                                  value={field.value ?? ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`guardians.${idx}.relation`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel required>Relation</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="Father"
+                                  {...field}
+                                  value={field.value ?? ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`guardians.${idx}.phone`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel required>Phone</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="0300-7654321"
+                                  {...field}
+                                  value={field.value ?? ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`guardians.${idx}.cnic`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel required>CNIC</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="35202-7654321-2"
+                                  {...field}
+                                  value={field.value ?? ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

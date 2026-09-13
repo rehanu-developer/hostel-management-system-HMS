@@ -18,6 +18,8 @@ export const familyMemberSchema = z.object({
   relation: z.string().min(1, "Relation required"),
 })
 
+export const guardiansSchema = z.array(familyMemberSchema)
+
 export const studentSchema = z.object({
   studentCode: z.string().min(1, "Student ID required"),
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -33,7 +35,7 @@ export const studentSchema = z.object({
   checkIn: z.string().min(1, "Check-in date required"),
   checkOut: z.string().optional(),
   referencePerson: z.string(),
-  familyMember: familyMemberSchema.nullable(),
+  guardians: guardiansSchema,
   notes: z.string(),
 })
 

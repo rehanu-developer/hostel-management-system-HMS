@@ -50,7 +50,8 @@ export interface Student {
   checkIn: string
   checkOut?: string
   referencePerson: string
-  familyMember: FamilyMember | null
+  /** Multiple guardians / family contacts (replaces the legacy single familyMember). */
+  guardians: FamilyMember[]
   notes: string
   monthlyFee?: number // negotiated override; falls back to room.monthlyPrice
 }

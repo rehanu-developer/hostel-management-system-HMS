@@ -72,6 +72,12 @@ interface DataState {
     receiptImage?: string
   }) => void
   updatePayment: (id: string, p: Partial<Payment>) => void
+  /**
+   * Quick status flip for a payment. Adjusts the running `paid` so the math
+   * stays consistent with the displayed status (Paid ⇒ paid = amount,
+   * Pending/Outstanding ⇒ paid = 0, Partially Paid ⇒ paid ≈ total / 2).
+   */
+  setPaymentStatus: (id: string, status: PaymentStatus) => void
   recordVisitorPaymentAmount: (args: {
     visitorId: string
     delta: number
@@ -489,6 +495,27 @@ export const useDataStore = create<DataState>((set, get) => ({
   updatePayment: (id, p) =>
     set((s) => ({
       payments: s.payments.map((x) => (x.id === id ? { ...x, ...p } : x)),
+    })),
+
+  setPaymentStatus: (id, status) =>
+    set((s) => ({
+      payments: s.payments.map((x) => {
+        if (x.id !== id) return x
+        const paid =
+          status === "Paid"
+            ? x.amount
+            : status === "Pending" || status === "Outstanding"
+              ? 0
+              : x.paid && x.paid > 0
+                ? x.paid // keep whatever was already paid (Partially Paid)
+                : Math.round(x.amount / 2)
+        return {
+          ...x,
+          status,
+          paid,
+          paidDate: status === "Paid" ? (x.paidDate ?? new Date().toISOString().slice(0, 10)) : x.paidDate,
+        }
+      }),
     })),
 
   checkInVisitor: (v) =>
