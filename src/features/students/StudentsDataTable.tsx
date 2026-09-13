@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import {
   Eye,
@@ -64,6 +63,8 @@ interface StudentsDataTableProps {
   page: number
   pageSize: number
   totalItems: number
+  selected: Set<string>
+  onSelectionChange: (next: Set<string>) => void
   onPageChange: (page: number) => void
   onPageSizeChange: (size: number) => void
   onEdit: (student: Student) => void
@@ -81,6 +82,8 @@ export function StudentsDataTable({
   page,
   pageSize,
   totalItems,
+  selected,
+  onSelectionChange,
   onPageChange,
   onPageSizeChange,
   onEdit,
@@ -91,13 +94,6 @@ export function StudentsDataTable({
   const hostelById = new Map(hostels.map((h) => [h.id, h]))
   const roomById = new Map(rooms.map((r) => [r.id, r]))
 
-  const [selected, setSelected] = useState<Set<string>>(new Set())
-
-  // Clear selection when the underlying list (page/filters) changes
-  useEffect(() => {
-    setSelected(new Set())
-  }, [students])
-
   const allOnPageSelected =
     students.length > 0 && students.every((s) => selected.has(s.id))
   const someOnPageSelected =
@@ -105,9 +101,9 @@ export function StudentsDataTable({
 
   const toggleAll = () => {
     if (allOnPageSelected) {
-      setSelected(new Set())
+      onSelectionChange(new Set())
     } else {
-      setSelected(new Set(students.map((s) => s.id)))
+      onSelectionChange(new Set(students.map((s) => s.id)))
     }
   }
 
@@ -115,7 +111,7 @@ export function StudentsDataTable({
     const next = new Set(selected)
     if (next.has(id)) next.delete(id)
     else next.add(id)
-    setSelected(next)
+    onSelectionChange(next)
   }
 
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))
