@@ -6,6 +6,8 @@ import {
   FileText,
   Settings as SettingsIcon,
   X,
+  Wallet,
+  UserCheck,
 } from "lucide-react"
 import { useUIStore } from "@/stores/uiStore"
 import { cn } from "@/lib/utils"
@@ -14,6 +16,8 @@ const nav = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
   { to: "/students", label: "Students", icon: Users, end: false },
   { to: "/hostels", label: "Hostels", icon: Building2, end: false },
+  { to: "/visitors", label: "Visitors", icon: UserCheck, end: false },
+  { to: "/finance", label: "Finance", icon: Wallet, end: false },
   { to: "/reports", label: "Reports", icon: FileText, end: false },
   { to: "/settings", label: "Settings", icon: SettingsIcon, end: false },
 ]

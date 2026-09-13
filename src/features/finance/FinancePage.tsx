@@ -444,6 +444,7 @@ export function FinancePage() {
         hostels={hostels}
         rooms={rooms}
         visitors={visitors}
+        payments={payments}
         currency={settings.currency}
         onRecordStudent={handleRecordStudentPayment}
         onRecordVisitor={handleRecordVisitorPayment}
