@@ -14,7 +14,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
@@ -164,11 +163,11 @@ export function StudentForm({
         onSubmit={handleFormSubmit}
         className="flex h-full flex-col"
       >
-        <div className="flex-1 space-y-6 overflow-y-auto px-1 pr-3">
+        <div className="flex-1 space-y-5 overflow-y-auto px-1 pr-3">
           {/* Personal Information */}
-          <section className="space-y-3">
-            <div>
-              <h3 className="font-display text-sm font-semibold">
+          <section className="space-y-3 rounded-md border border-[var(--border)] bg-[var(--card)] p-4">
+            <div className="space-y-1">
+              <h3 className="font-display text-base font-semibold tracking-tight text-[var(--foreground)]">
                 Personal Information
               </h3>
               <p className="text-xs text-[var(--muted-foreground)]">
@@ -292,11 +291,11 @@ export function StudentForm({
             </div>
 
             {/* Guardian / family */}
-            <div className="space-y-3 rounded-md border border-[var(--border)] bg-[var(--muted)]/30 p-3">
+            <div className="space-y-3 rounded-md border border-[var(--border)] bg-[var(--muted)]/40 p-3">
               <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">
+                <h4 className="font-display text-sm font-semibold tracking-tight text-[var(--foreground)]">
                   Guardians / family contacts
-                </Label>
+                </h4>
                 <Button
                   type="button"
                   variant="outline"
@@ -420,9 +419,9 @@ export function StudentForm({
           </section>
 
           {/* Hostel Information */}
-          <section className="space-y-3">
-            <div>
-              <h3 className="font-display text-sm font-semibold">
+          <section className="space-y-3 rounded-md border border-[var(--border)] bg-[var(--card)] p-4">
+            <div className="space-y-1">
+              <h3 className="font-display text-base font-semibold tracking-tight text-[var(--foreground)]">
                 Hostel Information
               </h3>
               <p className="text-xs text-[var(--muted-foreground)]">
@@ -571,9 +570,11 @@ export function StudentForm({
           </section>
 
           {/* Status */}
-          <section className="space-y-3">
-            <div>
-              <h3 className="font-display text-sm font-semibold">Status</h3>
+          <section className="space-y-3 rounded-md border border-[var(--border)] bg-[var(--card)] p-4">
+            <div className="space-y-1">
+              <h3 className="font-display text-base font-semibold tracking-tight text-[var(--foreground)]">
+                Status
+              </h3>
               <p className="text-xs text-[var(--muted-foreground)]">
                 Newly admitted students start as Active. You can change the
                 status later.
