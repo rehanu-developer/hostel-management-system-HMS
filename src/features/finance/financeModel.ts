@@ -1,0 +1,265 @@
+import type {
+  Hostel,
+  Payment,
+  PaymentStatus,
+  PaymentType,
+  Room,
+  Student,
+  Visitor,
+} from "@/types"
+
+export type FinanceRowType = PaymentType // "accommodation" | "visitor"
+
+export interface AccommodationFinanceRow {
+  id: string
+  type: "accommodation"
+  studentId: string
+  studentName: string
+  studentCode: string
+  hostel: Hostel | undefined
+  hostelId: string
+  hostelName: string
+  room: Room | undefined
+  roomNumber: string
+  month: string
+  description: string
+  amount: number // total fee expected
+  paid: number // amount already paid
+  remaining: number
+  status: PaymentStatus
+  paidDate: string | null
+  receiptImage?: string
+}
+
+export interface VisitorFinanceRow {
+  id: string
+  type: "visitor"
+  studentId: string // responsible hostel member
+  studentName: string
+  studentCode: string
+  hostel: Hostel | undefined
+  hostelId: string
+  hostelName: string
+  room: Room | undefined
+  roomNumber: string
+  visitorId: string
+  visitorName: string
+  description: string
+  amount: number // total charge
+  paid: number
+  remaining: number
+  status: PaymentStatus
+  paidDate: string | null
+}
+
+export type FinanceRow = AccommodationFinanceRow | VisitorFinanceRow
+
+export function paidAmount(payment: Payment): number {
+  if (payment.status === "Paid") return payment.amount
+  if (payment.status === "Partially Paid") return Math.round(payment.amount / 2)
+  return 0
+}
+
+export function computeRemaining(total: number, paid: number): number {
+  return Math.max(0, total - paid)
+}
+
+/** Project all payment + visitor data into a unified row shape. */
+export function projectFinanceRows(
+  payments: Payment[],
+  visitors: Visitor[],
+  students: Student[],
+  rooms: Room[],
+  hostels: Hostel[],
+): FinanceRow[] {
+  const studentById = new Map(students.map((s) => [s.id, s]))
+  const hostelById = new Map(hostels.map((h) => [h.id, h]))
+  const roomById = new Map(rooms.map((r) => [r.id, r]))
+
+  const accommodation: AccommodationFinanceRow[] = payments
+    .filter((p) => (p.type ?? "accommodation") === "accommodation")
+    .map((p) => {
+      const student = studentById.get(p.studentId)
+      const room = student ? roomById.get(student.roomId) : undefined
+      const hostel = student ? hostelById.get(student.hostelId) : undefined
+      const paid = paidAmount(p)
+      return {
+        id: p.id,
+        type: "accommodation",
+        studentId: p.studentId,
+        studentName: student?.name ?? "—",
+        studentCode: student?.studentCode ?? "—",
+        hostel,
+        hostelId: student?.hostelId ?? "",
+        hostelName: hostel?.name ?? "—",
+        room,
+        roomNumber: room?.number ?? "—",
+        month: p.month,
+        description: formatMonth(p.month),
+        amount: p.amount,
+        paid,
+        remaining: computeRemaining(p.amount, paid),
+        status: p.status,
+        paidDate: p.paidDate ?? null,
+        ...(p.receiptImage !== undefined ? { receiptImage: p.receiptImage } : {}),
+      }
+    })
+
+  const visitorRows: VisitorFinanceRow[] = visitors.map((v) => {
+    const student = studentById.get(v.studentId)
+    const room = student ? roomById.get(student.roomId) : undefined
+    const hostel = student ? hostelById.get(student.hostelId) : undefined
+    const paid =
+      v.paymentStatus === "Paid"
+        ? v.total
+        : v.paymentStatus === "Partially Paid"
+          ? Math.round(v.total / 2)
+          : 0
+    const month = v.checkIn.slice(0, 7)
+    return {
+      id: v.id,
+      type: "visitor",
+      studentId: v.studentId,
+      studentName: student?.name ?? "—",
+      studentCode: student?.studentCode ?? "—",
+      hostel,
+      hostelId: student?.hostelId ?? "",
+      hostelName: hostel?.name ?? "—",
+      room,
+      roomNumber: room?.number ?? "—",
+      visitorId: v.id,
+      visitorName: v.name,
+      description: v.name,
+      amount: v.total,
+      paid,
+      remaining: computeRemaining(v.total, paid),
+      status: v.paymentStatus,
+      paidDate: v.paymentStatus === "Paid" ? v.checkIn : null,
+    }
+  })
+
+  return [...accommodation, ...visitorRows]
+}
+
+export interface FinanceSummary {
+  collected: number
+  outstanding: number
+  pendingStudents: number
+  expected: number
+  totalRecords: number
+}
+
+export function summarize(
+  rows: FinanceRow[],
+  paymentsForExpected: Payment[],
+): FinanceSummary {
+  const collected = rows
+    .filter((r) => r.status === "Paid")
+    .reduce((sum, r) => sum + r.paid, 0)
+  const outstanding = rows.reduce(
+    (sum, r) =>
+      sum + (r.status === "Paid" ? 0 : r.remaining),
+    0,
+  )
+  const pendingStudents = new Set(
+    rows
+      .filter(
+        (r) =>
+          r.type === "accommodation" &&
+          r.status !== "Paid",
+      )
+      .map((r) => r.studentId),
+  ).size
+  // Expected = sum of accommodation fee amounts in the row scope
+  // (visitor charges are separate, not counted as accommodation revenue)
+  const expected = paymentsForExpected
+    .filter((p) => (p.type ?? "accommodation") === "accommodation")
+    .reduce((sum, p) => sum + p.amount, 0)
+  return {
+    collected,
+    outstanding,
+    pendingStudents,
+    expected,
+    totalRecords: rows.length,
+  }
+}
+
+function formatMonth(monthKey: string) {
+  const [y, m] = monthKey.split("-").map(Number)
+  return new Date(y, m - 1, 1).toLocaleDateString("en-GB", {
+    month: "long",
+    year: "numeric",
+  })
+}
+
+export function applyFinanceFilters(
+  rows: FinanceRow[],
+  filters: FinanceFilters,
+  studentById: Map<string, Student>,
+): FinanceRow[] {
+  return rows.filter((r) => {
+    if (filters.type !== "all" && r.type !== filters.type) return false
+    if (filters.status !== "all" && r.status !== filters.status) return false
+    if (filters.hostelId !== "all" && r.hostelId !== filters.hostelId)
+      return false
+    if (filters.month !== "all" && r.month !== filters.month) return false
+    if (filters.search) {
+      const q = filters.search.toLowerCase()
+      const hay = [
+        r.studentName,
+        r.studentCode,
+        r.hostelName,
+        r.roomNumber,
+        "type" in r ? (r as VisitorFinanceRow).visitorName : "",
+        r.description,
+      ]
+        .join(" ")
+        .toLowerCase()
+      if (!hay.includes(q)) return false
+    }
+    if (filters.rangeFrom) {
+      const monthTs = new Date(r.month + "-01").getTime()
+      if (monthTs < new Date(filters.rangeFrom).getTime()) return false
+    }
+    if (filters.rangeTo) {
+      const monthTs = new Date(r.month + "-01").getTime()
+      const endOfMonth = new Date(r.month + "-01")
+      endOfMonth.setMonth(endOfMonth.getMonth() + 1)
+      endOfMonth.setDate(0)
+      if (endOfMonth.getTime() > new Date(filters.rangeTo).getTime()) return false
+    }
+    return true
+  })
+}
+
+export interface FinanceFilters {
+  search: string
+  type: FinanceRowType | "all"
+  status: PaymentStatus | "all"
+  hostelId: string
+  month: string
+  rangeFrom: string
+  rangeTo: string
+}
+
+export const EMPTY_FINANCE_FILTERS: FinanceFilters = {
+  search: "",
+  type: "all",
+  status: "all",
+  hostelId: "all",
+  month: "all",
+  rangeFrom: "",
+  rangeTo: "",
+}
+
+export function isFinanceFilterActive(f: FinanceFilters): boolean {
+  return (
+    f.search !== "" ||
+    f.type !== "all" ||
+    f.status !== "all" ||
+    f.hostelId !== "all" ||
+    f.month !== "all" ||
+    f.rangeFrom !== "" ||
+    f.rangeTo !== ""
+  )
+}
