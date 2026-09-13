@@ -133,6 +133,14 @@ export function AssignStudentSheet({
     }
   }, [targetRoomId, vacantBeds, targetBed])
 
+  // Pre-fill agreed price with the room's monthly price whenever the room
+  // changes. Admin can edit the value if the negotiated price differs.
+  useEffect(() => {
+    if (targetRoom) {
+      setAgreedPriceInput(String(targetRoom.monthlyPrice))
+    }
+  }, [targetRoom])
+
   const canConfirm =
     selectedStudent !== null &&
     targetHostelId !== "" &&
@@ -375,7 +383,7 @@ export function AssignStudentSheet({
                 <div>
                   <Label className="text-xs font-normal text-[var(--muted-foreground)]">
                     Agreed Monthly Price{" "}
-                    <span className="text-[10px]">(optional — overrides default)</span>
+                    <span className="text-[10px]">(edit if negotiated differently)</span>
                   </Label>
                   <div className="relative mt-1">
                     <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-[var(--muted-foreground)]">
@@ -385,7 +393,6 @@ export function AssignStudentSheet({
                       type="number"
                       inputMode="numeric"
                       min={0}
-                      placeholder={String(targetRoom.monthlyPrice)}
                       value={agreedPriceInput}
                       onChange={(e) => setAgreedPriceInput(e.target.value)}
                       className="pl-9 tabular-nums"
@@ -413,9 +420,10 @@ export function AssignStudentSheet({
                     </p>
                   )}
                   <p className="mt-1 text-[11px] text-[var(--muted-foreground)]">
-                    Leave empty to use the room default. The agreed price becomes this
-                    assignment's accommodation fee (Finance billing only — the room
-                    default stays unchanged).
+                    Pre-filled with the room's default. Edit if a different price
+                    was negotiated. The agreed price becomes this assignment's
+                    accommodation fee (Finance billing only — the room default
+                    stays unchanged).
                   </p>
                 </div>
               </div>

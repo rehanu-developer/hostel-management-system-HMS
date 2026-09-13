@@ -59,12 +59,16 @@ export function ChangeRoomSheet({
       setTargetHostelId(student.hostelId)
       setTargetRoomId(student.roomId)
       setTargetBed("")
-      // Pre-fill with student's current agreed price (or empty for default)
-      setAgreedPriceInput(
-        student.monthlyFee !== undefined ? String(student.monthlyFee) : "",
-      )
     }
   }, [open, student])
+
+  // Pre-fill agreed price with the target room's monthly price whenever the
+  // room changes. Admin can edit the value if the negotiated price differs.
+  useEffect(() => {
+    if (targetRoom) {
+      setAgreedPriceInput(String(targetRoom.monthlyPrice))
+    }
+  }, [targetRoom])
 
   const currentHostel = hostels.find((h) => h.id === student?.hostelId)
   const currentRoom = rooms.find((r) => r.id === student?.roomId)
@@ -319,7 +323,7 @@ export function ChangeRoomSheet({
                 <div>
                   <Label className="text-xs font-normal text-[var(--muted-foreground)]">
                     Agreed Monthly Price{" "}
-                    <span className="text-[10px]">(optional — overrides default)</span>
+                    <span className="text-[10px]">(edit if negotiated differently)</span>
                   </Label>
                   <div className="relative mt-1">
                     <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-[var(--muted-foreground)]">
@@ -329,7 +333,6 @@ export function ChangeRoomSheet({
                       type="number"
                       inputMode="numeric"
                       min={0}
-                      placeholder={String(targetRoom.monthlyPrice)}
                       value={agreedPriceInput}
                       onChange={(e) => setAgreedPriceInput(e.target.value)}
                       className="pl-9 tabular-nums"
@@ -357,8 +360,9 @@ export function ChangeRoomSheet({
                     </p>
                   )}
                   <p className="mt-1 text-[11px] text-[var(--muted-foreground)]">
-                    Leave empty to use the new room's default. The agreed price
-                    applies only to this assignment — historical fees stay frozen.
+                    Pre-filled with the new room's default. Edit if a different
+                    price was negotiated. The agreed price applies only to this
+                    assignment — historical fees stay frozen.
                   </p>
                 </div>
               </div>
