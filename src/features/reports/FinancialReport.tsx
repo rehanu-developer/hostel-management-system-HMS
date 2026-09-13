@@ -65,7 +65,7 @@ interface FinancialReportProps {
 
 interface UnifiedRow {
   type: "accommodation" | "visitor"
-  studentId: string
+  studentId: string | undefined
   studentName: string
   studentCode: string
   hostelName: string
@@ -73,6 +73,7 @@ interface UnifiedRow {
   visitingStudent?: string
   visitorName?: string
   amount: number
+  paid: number
   status: PaymentStatus
   paidDate: string | null
   month: string
@@ -122,6 +123,7 @@ export function FinancialReport({ onExportReady }: FinancialReportProps = {}) {
           hostelName: hostel?.name ?? "—",
           roomNumber: room?.number ?? "—",
           amount: p.amount,
+          paid: p.paid ?? 0,
           status: p.status,
           paidDate: p.paidDate ?? null,
           month: p.month,
@@ -129,20 +131,22 @@ export function FinancialReport({ onExportReady }: FinancialReportProps = {}) {
       })
 
     const visitorRows: UnifiedRow[] = visitors.map((v) => {
-      const student = studentById.get(v.studentId)
-      const room = student ? roomById.get(student.roomId) : undefined
-      const hostel = student ? hostelById.get(student.hostelId) : undefined
+      const student = v.studentId ? studentById.get(v.studentId) : undefined
+      const room = v.roomId ? roomById.get(v.roomId) : undefined
+      const hostel = hostelById.get(v.hostelId)
       const month = v.checkIn.slice(0, 7)
       return {
         type: "visitor",
         studentId: v.studentId,
-        studentName: student?.name ?? "—",
-        studentCode: student?.studentCode ?? "—",
+        studentName:
+          v.kind === "independent" ? "Independent Visitor" : (student?.name ?? "—"),
+        studentCode: v.kind === "independent" ? "—" : (student?.studentCode ?? "—"),
         hostelName: hostel?.name ?? "—",
         roomNumber: room?.number ?? "—",
         visitingStudent: student?.name ?? "—",
         visitorName: v.name,
         amount: v.total,
+        paid: v.paid ?? 0,
         status: v.paymentStatus,
         paidDate: v.paymentStatus === "Paid" ? v.checkIn : null,
         month,
@@ -171,8 +175,9 @@ export function FinancialReport({ onExportReady }: FinancialReportProps = {}) {
         if (statusFilter !== "all" && r.status !== statusFilter) return false
         if (monthFilter !== "all" && r.month !== monthFilter) return false
         if (hostelFilter !== "all" && r.hostelName !== hostelFilter) {
-          // Re-derive: if the student's hostelId matches
-          const student = studentById.get(r.studentId)
+          // Independent visitor rows already have hostelName set; only accommodation
+          // (and linked visitors) need a re-derive through the student.
+          const student = r.studentId ? studentById.get(r.studentId) : undefined
           if (student?.hostelId !== hostelFilter) return false
         }
         if (range.from) {
@@ -405,12 +410,7 @@ export function FinancialReport({ onExportReady }: FinancialReportProps = {}) {
               </TableRow>
             ) : (
               rows.map((r, idx) => {
-                const amountPaid =
-                  r.status === "Paid"
-                    ? r.amount
-                    : r.status === "Partially Paid"
-                      ? Math.round(r.amount / 2)
-                      : 0
+                const amountPaid = r.paid ?? 0
                 const finalOutstanding = Math.max(0, r.amount - amountPaid)
                 const isVisitor = r.type === "visitor"
                 return (

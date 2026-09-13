@@ -59,7 +59,10 @@ export interface Payment {
   id: string
   studentId: string
   month: string // YYYY-MM
+  /** Total fee expected for this period. Independent of how much has been paid. */
   amount: number
+  /** Running total of payments made toward this fee. 0 ≤ paid ≤ amount. */
+  paid?: number
   paidDate?: string
   status: PaymentStatus
   receiptImage?: string
@@ -89,7 +92,10 @@ export interface Visitor {
   actualCheckOut?: string // ISO datetime — present when checked out
   nights: number // expected stay
   perNight: number // PKR / night
-  total: number // PKR total for the stay
+  /** Total charge for the stay. Independent of how much has been paid. */
+  total: number
+  /** Running total of payments made toward this stay. 0 ≤ paid ≤ total. */
+  paid?: number
   status: VisitorStatus
   paymentStatus: PaymentStatus
   notes?: string

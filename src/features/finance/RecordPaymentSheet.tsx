@@ -143,19 +143,18 @@ export function RecordPaymentSheet({
   const selectedRoom = rooms.find((r) => r.id === selectedStudent?.roomId)
   const selectedHostel = hostels.find((h) => h.id === selectedStudent?.hostelId)
 
-  const expectedMonthlyFee =
-    selectedStudent?.monthlyFee ?? selectedRoom?.monthlyPrice ?? 0
-
+  // Total fee for the month — use the existing payment's amount if present
+  // (preserves any prior negotiated price); otherwise fall back to the agreed
+  // price from the open room assignment, then the room default.
   const existingPayment = payments.find(
     (p) => p.studentId === studentId && p.month === (month ?? currentMonthKey()),
   )
-  const alreadyPaid = existingPayment
-    ? existingPayment.status === "Paid"
-      ? existingPayment.amount
-      : existingPayment.status === "Partially Paid"
-        ? Math.round(existingPayment.amount / 2)
-        : 0
-    : 0
+  const studentAgreedPrice = selectedStudent?.monthlyFee
+  const expectedMonthlyFee = existingPayment?.amount
+    ?? studentAgreedPrice
+    ?? selectedRoom?.monthlyPrice
+    ?? 0
+  const alreadyPaid = existingPayment?.paid ?? 0
   const remaining = Math.max(0, expectedMonthlyFee - alreadyPaid)
 
   const selectedVisitor = visitors.find((v) => v.id === visitorId)
@@ -163,13 +162,7 @@ export function RecordPaymentSheet({
   const visitorRoom = rooms.find((r) => r.id === responsibleStudent?.roomId)
   const visitorHostel = hostels.find((h) => h.id === responsibleStudent?.hostelId)
 
-  const visitorAlreadyPaid = selectedVisitor
-    ? selectedVisitor.paymentStatus === "Paid"
-      ? selectedVisitor.total
-      : selectedVisitor.paymentStatus === "Partially Paid"
-        ? Math.round(selectedVisitor.total / 2)
-        : 0
-    : 0
+  const visitorAlreadyPaid = selectedVisitor?.paid ?? 0
   const visitorRemaining = selectedVisitor
     ? Math.max(0, selectedVisitor.total - visitorAlreadyPaid)
     : 0

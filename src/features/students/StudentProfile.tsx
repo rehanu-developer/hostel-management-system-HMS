@@ -52,12 +52,14 @@ export function StudentProfile({ onEdit }: StudentProfileProps) {
     .filter((p) => p.studentId === student.id)
     .sort((a, b) => (a.month < b.month ? 1 : -1))
 
-  const totalPaid = studentPayments
-    .filter((p) => p.status === "Paid")
-    .reduce((sum, p) => sum + p.amount, 0)
-  const outstanding = studentPayments
-    .filter((p) => p.status === "Pending" || p.status === "Outstanding" || p.status === "Partially Paid")
-    .reduce((sum, p) => sum + p.amount, 0)
+  const totalPaid = studentPayments.reduce(
+    (sum, p) => sum + (p.paid ?? 0),
+    0,
+  )
+  const outstanding = studentPayments.reduce(
+    (sum, p) => sum + Math.max(0, p.amount - (p.paid ?? 0)),
+    0,
+  )
 
   return (
     <>

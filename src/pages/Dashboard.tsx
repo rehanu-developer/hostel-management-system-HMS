@@ -29,7 +29,7 @@ export function Dashboard() {
     const currentMonthPayments = payments.filter((p) => p.month === month)
     const pendingAmount = currentMonthPayments
       .filter((p) => p.status === "Pending" || p.status === "Outstanding")
-      .reduce((sum, p) => sum + p.amount, 0)
+      .reduce((sum, p) => sum + Math.max(0, p.amount - (p.paid ?? 0)), 0)
 
     const occupiedRooms = new Set(
       activeStudents.map((s) => s.roomId),
@@ -45,9 +45,10 @@ export function Dashboard() {
       pendingCount: currentMonthPayments.filter(
         (p) => p.status === "Pending" || p.status === "Outstanding",
       ).length,
-      currentCollected: currentMonthPayments
-        .filter((p) => p.status === "Paid")
-        .reduce((sum, p) => sum + p.amount, 0),
+      currentCollected: currentMonthPayments.reduce(
+        (sum, p) => sum + (p.paid ?? 0),
+        0,
+      ),
     }
   }, [students, rooms, payments, month])
 
@@ -66,8 +67,8 @@ export function Dashboard() {
     for (const p of payments) {
       const entry = map.get(p.month)
       if (!entry) continue
-      if (p.status === "Paid") entry.collected += p.amount
-      else entry.pending += p.amount
+      entry.collected += p.paid ?? 0
+      entry.pending += Math.max(0, p.amount - (p.paid ?? 0))
     }
     return Array.from(map.values())
   }, [payments])

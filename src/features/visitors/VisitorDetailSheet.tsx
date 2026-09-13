@@ -67,12 +67,7 @@ export function VisitorDetailSheet({
   }
 
   const isActive = visitor.status === "Currently Visiting"
-  const amountPaid =
-    visitor.paymentStatus === "Paid"
-      ? visitor.total
-      : visitor.paymentStatus === "Partially Paid"
-        ? Math.round(visitor.total / 2)
-        : 0
+  const amountPaid = visitor.paid ?? 0
   const outstanding = Math.max(0, visitor.total - amountPaid)
 
   const handleRecordPayment = async (status: PaymentStatus) => {

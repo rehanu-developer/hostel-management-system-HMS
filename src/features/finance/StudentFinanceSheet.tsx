@@ -234,13 +234,9 @@ function AccommodationCard({
 }) {
   const currentMonth = new Date().toISOString().slice(0, 7)
   const current = payments.find((p) => p.month === currentMonth)
+  // Use existing fee amount if present; else the agreed/student.monthlyFee; else 0.
   const total = current?.amount ?? student.monthlyFee ?? 0
-  const paid =
-    current?.status === "Paid"
-      ? total
-      : current?.status === "Partially Paid"
-        ? Math.round(total / 2)
-        : 0
+  const paid = current?.paid ?? 0
   const remaining = Math.max(0, total - paid)
   const status = current?.status ?? "Pending"
   return (
@@ -288,12 +284,7 @@ function VisitorFinanceRow({
   currency: string
   onOpen: () => void
 }) {
-  const paid =
-    visitor.paymentStatus === "Paid"
-      ? visitor.total
-      : visitor.paymentStatus === "Partially Paid"
-        ? Math.round(visitor.total / 2)
-        : 0
+  const paid = visitor.paid ?? 0
   const remaining = Math.max(0, visitor.total - paid)
   return (
     <button

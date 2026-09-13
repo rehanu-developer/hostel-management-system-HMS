@@ -58,13 +58,21 @@ export interface VisitorFinanceRow {
 export type FinanceRow = AccommodationFinanceRow | VisitorFinanceRow
 
 export function paidAmount(payment: Payment): number {
+  // Use the `paid` field when present (post-fix data). Otherwise derive
+  // conservatively from status for backward compat with older data.
+  if (payment.paid !== undefined) return payment.paid
   if (payment.status === "Paid") return payment.amount
-  if (payment.status === "Partially Paid") return Math.round(payment.amount / 2)
   return 0
 }
 
 export function computeRemaining(total: number, paid: number): number {
   return Math.max(0, total - paid)
+}
+
+export function visitorPaid(v: Visitor): number {
+  if (v.paid !== undefined) return v.paid
+  if (v.paymentStatus === "Paid") return v.total
+  return 0
 }
 
 /** Project all payment + visitor data into a unified row shape. */
@@ -112,12 +120,7 @@ export function projectFinanceRows(
     const student = v.studentId ? studentById.get(v.studentId) : undefined
     const hostel = hostelById.get(v.hostelId)
     const room = v.roomId ? roomById.get(v.roomId) : undefined
-    const paid =
-      v.paymentStatus === "Paid"
-        ? v.total
-        : v.paymentStatus === "Partially Paid"
-          ? Math.round(v.total / 2)
-          : 0
+    const paid = visitorPaid(v)
     const month = v.checkIn.slice(0, 7)
     return {
       id: v.id,
@@ -138,7 +141,7 @@ export function projectFinanceRows(
       paid,
       remaining: computeRemaining(v.total, paid),
       status: v.paymentStatus,
-      paidDate: v.paymentStatus === "Paid" ? v.checkIn : null,
+      paidDate: v.paidDate ?? (v.paymentStatus === "Paid" ? v.checkIn : null),
       kind: v.kind,
     }
   })
@@ -175,8 +178,9 @@ export function summarize(
       )
       .map((r) => r.studentId),
   ).size
-  // Expected = sum of accommodation fee amounts in the row scope
-  // (visitor charges are separate, not counted as accommodation revenue)
+  // Expected accommodation revenue = sum of fee amounts (always the full fee now,
+  // independent of payment status) in the row scope. Visitor charges are
+  // counted separately, NOT as accommodation revenue (per spec).
   const expected = paymentsForExpected
     .filter((p) => (p.type ?? "accommodation") === "accommodation")
     .reduce((sum, p) => sum + p.amount, 0)

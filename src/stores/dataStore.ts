@@ -109,18 +109,30 @@ function ensureCurrentMonthFee(
   const existing = payments.find(
     (p) => p.studentId === studentId && p.month === month,
   )
-  if (existing) return payments
-  return [
-    ...payments,
-    {
-      id,
-      studentId,
-      month,
-      amount,
-      status: "Pending",
-      type: "accommodation" as PaymentType,
-    },
-  ]
+  if (!existing) {
+    return [
+      ...payments,
+      {
+        id,
+        studentId,
+        month,
+        amount,
+        paid: 0,
+        status: "Pending",
+        type: "accommodation" as PaymentType,
+      },
+    ]
+  }
+  // Existing fee: only update the total when no payment has been made yet.
+  // Historical fees with any `paid > 0` are frozen (per spec: "room price changes
+  // must not rewrite historical financial records").
+  const paidSoFar = existing.paid ?? 0
+  if (paidSoFar === 0 && existing.amount !== amount) {
+    return payments.map((p) =>
+      p.id === existing.id ? { ...p, amount } : p,
+    )
+  }
+  return payments
 }
 
 /**
@@ -397,27 +409,29 @@ export const useDataStore = create<DataState>((set, get) => ({
       const existing = s.payments.find(
         (x) => x.studentId === studentId && x.month === month,
       )
-      const priorAmountPaid = existing?.status === "Paid"
-        ? existing.amount
-        : existing?.status === "Partially Paid"
-          ? Math.round((existing.amount ?? 0) / 2)
-          : 0
-      // Resolve the agreed monthly price from the open assignment when no payment exists yet
+      // Use the `paid` field if present; otherwise derive conservatively.
+      const priorPaid = existing?.paid ?? 0
+      // Resolve the agreed monthly price from the open assignment when no payment exists yet.
       const student = s.students.find((x) => x.id === studentId)
       const openHistory = s.roomHistory.find(
         (h) => h.studentId === studentId && !h.to,
       )
       const agreed = resolveAgreedMonthlyPrice(student, openHistory, s.rooms)
       const total = existing?.amount ?? agreed
-      const newPaid = priorAmountPaid + delta
+      const newPaid = Math.min(total, priorPaid + delta)
       const remaining = Math.max(0, total - newPaid)
       const status: Payment["status"] =
-        remaining <= 0 ? "Paid" : newPaid > 0 ? "Partially Paid" : "Pending"
+        remaining <= 0 && newPaid > 0
+          ? "Paid"
+          : newPaid > 0
+            ? "Partially Paid"
+            : "Pending"
       const next: Payment = {
         id,
         studentId,
         month,
-        amount: newPaid, // amount in store = total paid (used for "already paid")
+        amount: total, // amount is always the full fee
+        paid: newPaid,
         paidDate,
         status,
         type: "accommodation",
@@ -449,21 +463,21 @@ export const useDataStore = create<DataState>((set, get) => ({
     set((s) => {
       const v = s.visitors.find((x) => x.id === visitorId)
       if (!v) return s
-      const priorPaid =
-        v.paymentStatus === "Paid"
-          ? v.total
-          : v.paymentStatus === "Partially Paid"
-            ? Math.round(v.total / 2)
-            : 0
-      const newPaid = priorPaid + delta
+      const priorPaid = v.paid ?? 0
+      const newPaid = Math.min(v.total, priorPaid + delta)
       const remaining = Math.max(0, v.total - newPaid)
       const status: Payment["status"] =
-        remaining <= 0 ? "Paid" : newPaid > 0 ? "Partially Paid" : "Pending"
+        remaining <= 0 && newPaid > 0
+          ? "Paid"
+          : newPaid > 0
+            ? "Partially Paid"
+            : "Pending"
       return {
         visitors: s.visitors.map((x) =>
           x.id === visitorId
             ? {
                 ...x,
+                paid: newPaid,
                 paymentStatus: status,
                 paidDate,
               }
@@ -502,9 +516,18 @@ export const useDataStore = create<DataState>((set, get) => ({
 
   recordVisitorPayment: (id, status) =>
     set((s) => ({
-      visitors: s.visitors.map((x) =>
-        x.id === id ? { ...x, paymentStatus: status } : x,
-      ),
+      visitors: s.visitors.map((x) => {
+        if (x.id !== id) return x
+        // Sync paid to match the new status (rough — caller should use
+        // recordVisitorPaymentAmount for actual amount tracking).
+        const paid =
+          status === "Paid"
+            ? x.total
+            : status === "Partially Paid"
+              ? x.paid ?? Math.round(x.total / 2)
+              : 0
+        return { ...x, paid, paymentStatus: status }
+      }),
     })),
 
   updateSettings: (st) =>
