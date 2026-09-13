@@ -50,7 +50,7 @@ import { FinanceFilters as FinanceFiltersBar } from "./FinanceFilters"
 import { PaymentDetailSheet } from "./PaymentDetailSheet"
 import { StudentFinanceSheet } from "./StudentFinanceSheet"
 import { RecordPaymentSheet } from "./RecordPaymentSheet"
-import { formatCurrency, currentMonthKey } from "@/lib/utils"
+import { currentMonthKey } from "@/lib/utils"
 import { paymentStatusVariant } from "@/components/ui/badgeVariants"
 
 export function FinancePage() {
@@ -230,29 +230,20 @@ export function FinancePage() {
         <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)]">
           <Table className="table-fixed">
             <colgroup>
-              <col className="w-[160px] pl-6" />
-              <col className="w-[150px]" />
-              <col className="w-[110px]" />
-              <col className="w-[130px]" />
+              <col className="w-[200px] pl-6" />
               <col />
-              <col className="w-[110px] text-right" />
-              <col className="w-[110px] text-right" />
-              <col className="w-[110px] text-right" />
-              <col className="w-[130px]" />
               <col className="w-[110px]" />
-              <col className="w-[100px] pr-6" />
+              <col className="w-[150px]" />
+              <col className="w-[140px]" />
+              <col className="w-[80px] pr-6" />
             </colgroup>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
                 <TableHead className="pl-6">Student</TableHead>
-                <TableHead>Hostel / Room</TableHead>
+                <TableHead>Hostel</TableHead>
+                <TableHead>Room</TableHead>
                 <TableHead>Type</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead className="text-right">Paid</TableHead>
-                <TableHead className="text-right">Remaining</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Last Payment</TableHead>
                 <TableHead className="pr-6 text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -270,25 +261,13 @@ export function FinancePage() {
                       <Skeleton className="h-4 w-32" />
                     </TableCell>
                     <TableCell>
-                      <Skeleton className="h-5 w-16 rounded-full" />
+                      <Skeleton className="h-4 w-20" />
                     </TableCell>
                     <TableCell>
-                      <Skeleton className="h-4 w-28" />
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Skeleton className="ml-auto h-4 w-16" />
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Skeleton className="ml-auto h-4 w-16" />
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Skeleton className="ml-auto h-4 w-16" />
+                      <Skeleton className="h-5 w-24 rounded-full" />
                     </TableCell>
                     <TableCell>
                       <Skeleton className="h-5 w-20 rounded-full" />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-4 w-20" />
                     </TableCell>
                     <TableCell className="pr-6 text-right">
                       <Skeleton className="ml-auto h-7 w-7 rounded-full" />
@@ -297,7 +276,7 @@ export function FinancePage() {
                 ))
               ) : rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={10} className="p-0">
+                  <TableCell colSpan={6} className="p-0">
                     <EmptyState
                       message="No financial records found"
                       description="There are no payments matching the current filters."
@@ -339,7 +318,9 @@ export function FinancePage() {
                       </TableCell>
                       <TableCell className="text-[14px] text-[var(--muted-foreground)]">
                         {r.hostelName}
-                        {!isIndependent && ` / Room ${r.roomNumber}`}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap text-[14px] text-[var(--muted-foreground)]">
+                        {isIndependent ? "—" : `Room ${r.roomNumber}`}
                       </TableCell>
                       <TableCell>
                         {isAccommodation ? (
@@ -350,31 +331,10 @@ export function FinancePage() {
                           <Badge variant="info-soft">Visitor Stay</Badge>
                         )}
                       </TableCell>
-                      <TableCell className="text-[14px]">
-                        {r.description}
-                      </TableCell>
-                      <TableCell className="text-right tabular-nums">
-                        {formatCurrency(r.amount, settings.currency)}
-                      </TableCell>
-                      <TableCell className="text-right tabular-nums">
-                        {formatCurrency(r.paid, settings.currency)}
-                      </TableCell>
-                      <TableCell className="text-right tabular-nums">
-                        {formatCurrency(r.remaining, settings.currency)}
-                      </TableCell>
                       <TableCell>
                         <Badge variant={paymentStatusVariant[r.status]}>
                           {r.status}
                         </Badge>
-                      </TableCell>
-                      <TableCell className="text-[14px] tabular-nums text-[var(--muted-foreground)] whitespace-nowrap">
-                        {r.paidDate
-                          ? new Date(r.paidDate).toLocaleDateString("en-GB", {
-                              day: "2-digit",
-                              month: "short",
-                              year: "numeric",
-                            })
-                          : "—"}
                       </TableCell>
                       <TableCell
                         className="pr-6 text-right"
