@@ -8,6 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { UserRound, Activity, Banknote } from "lucide-react"
 import {
   Select,
   SelectContent,
@@ -18,8 +19,9 @@ import {
 import { ReportFiltersBar } from "./ReportFiltersBar"
 import { DateRangeFilter, type DateRange } from "./DateRangeFilter"
 import { ReportTableSkeleton, ReportEmptyState } from "./ReportTable"
+import { KpiTile } from "./KpiTile"
 import { useDataStore } from "@/stores/dataStore"
-import { formatDate } from "@/lib/utils"
+import { formatCurrency, formatDate } from "@/lib/utils"
 import type { ExportColumn } from "./export"
 import {
   visitorStatusVariant,
@@ -75,6 +77,7 @@ export function VisitorsReport({ onExportReady }: VisitorsReportProps = {}) {
   const rooms = useDataStore((s) => s.rooms)
   const students = useDataStore((s) => s.students)
   const visitors = useDataStore((s) => s.visitors)
+  const currency = useDataStore((s) => s.settings.currency)
 
   const [search, setSearch] = useState("")
   const [hostelFilter, setHostelFilter] = useState("all")
@@ -148,8 +151,13 @@ export function VisitorsReport({ onExportReady }: VisitorsReportProps = {}) {
     !!range.from ||
     !!range.to
 
-  const activeCount = visitors.filter((v) => !v.actualCheckOut).length
-  const historicalCount = visitors.length - activeCount
+  const visitorKpis = useMemo(() => {
+    const total = visitors.length
+    const active = visitors.filter((v) => !v.actualCheckOut).length
+    const historical = total - active
+    const revenue = visitors.reduce((sum, v) => sum + v.total, 0)
+    return { total, active, historical, revenue }
+  }, [visitors])
 
   useEffect(() => {
     if (!onExportReady) return
@@ -195,6 +203,29 @@ export function VisitorsReport({ onExportReady }: VisitorsReportProps = {}) {
 
   return (
     <div className="space-y-4">
+      {/* KPI Summary */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+        <KpiTile
+          icon={UserRound}
+          label="Total Visitors"
+          value={visitorKpis.total}
+          sub="all records"
+        />
+        <KpiTile
+          icon={Activity}
+          label="Currently Visiting"
+          value={visitorKpis.active}
+          sub={`${visitorKpis.historical} checked out`}
+          accent="success"
+        />
+        <KpiTile
+          icon={Banknote}
+          label="Total Revenue"
+          value={formatCurrency(visitorKpis.revenue, currency)}
+          sub="all-time earnings"
+        />
+      </div>
+
       <ReportFiltersBar
         search={{
           value: search,
@@ -349,7 +380,7 @@ export function VisitorsReport({ onExportReady }: VisitorsReportProps = {}) {
           Showing {rows.length} of {visitors.length} visitor records
         </span>
         <span>
-          {activeCount} active · {historicalCount} checked out
+          {visitorKpis.active} active · {visitorKpis.historical} checked out
         </span>
       </div>
     </div>

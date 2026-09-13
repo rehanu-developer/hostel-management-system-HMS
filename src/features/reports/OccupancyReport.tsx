@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/select"
 import { ReportFiltersBar } from "./ReportFiltersBar"
 import { ReportTableSkeleton, ReportEmptyState } from "./ReportTable"
+import { KpiTile } from "./KpiTile"
 import {
   useDataStore,
   getHostelStats,
@@ -409,44 +410,3 @@ export function OccupancyReport({ onExportReady }: OccupancyReportProps = {}) {
   )
 }
 
-function KpiTile({
-  icon: Icon,
-  label,
-  value,
-  sub,
-  accent,
-}: {
-  icon: React.ComponentType<{ className?: string }>
-  label: string
-  value: string | number
-  sub: string
-  accent?: "success"
-}) {
-  return (
-    <Card>
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-[var(--muted-foreground)]">
-              {label}
-            </p>
-            <p
-              className={
-                "mt-1 font-display text-xl font-semibold tabular-nums " +
-                (accent === "success" ? "text-[var(--success-soft-foreground)]" : "")
-              }
-            >
-              {value}{" "}
-              <span className="text-xs font-normal text-[var(--muted-foreground)]">
-                {sub}
-              </span>
-            </p>
-          </div>
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[var(--muted)] text-[var(--muted-foreground)]">
-            <Icon className="h-3.5 w-3.5" />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}

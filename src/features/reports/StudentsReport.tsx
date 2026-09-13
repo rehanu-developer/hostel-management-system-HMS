@@ -9,8 +9,10 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { Users, UserCheck, Wallet } from "lucide-react"
 import { ReportFiltersBar } from "./ReportFiltersBar"
 import { ReportTableSkeleton, ReportEmptyState } from "./ReportTable"
+import { KpiTile } from "./KpiTile"
 import { useDataStore } from "@/stores/dataStore"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import type { StudentStatus, PaymentStatus } from "@/types"
@@ -130,6 +132,24 @@ export function StudentsReport({ onExportReady }: StudentsReportProps = {}) {
     fromDate !== "" ||
     toDate !== ""
 
+  const kpis = useMemo(() => {
+    const total = students.length
+    const activeCount = students.filter((s) => s.status === "Active").length
+    const inactiveCount = total - activeCount
+    // Current-month payment status counts
+    const now = new Date()
+    const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`
+    const currentPayments = payments.filter((p) => p.month === monthKey)
+    const outstandingCount = students.filter((s) => {
+      if (s.status !== "Active") return false
+      const p = currentPayments.find((x) => x.studentId === s.id)
+      if (!p) return true
+      return p.status !== "Paid"
+    }).length
+    const settledCount = activeCount - outstandingCount
+    return { total, activeCount, inactiveCount, outstandingCount, settledCount }
+  }, [students, payments])
+
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
       setSortDir(sortDir === "asc" ? "desc" : "asc")
@@ -168,6 +188,30 @@ export function StudentsReport({ onExportReady }: StudentsReportProps = {}) {
 
   return (
     <div className="space-y-4">
+      {/* KPI Summary */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+        <KpiTile
+          icon={Users}
+          label="Total Students"
+          value={kpis.total}
+          sub="across all hostels"
+        />
+        <KpiTile
+          icon={UserCheck}
+          label="Active"
+          value={kpis.activeCount}
+          sub={`${kpis.inactiveCount} inactive`}
+          accent="success"
+        />
+        <KpiTile
+          icon={Wallet}
+          label="Outstanding"
+          value={kpis.outstandingCount}
+          sub={`${kpis.settledCount} settled`}
+          accent={kpis.outstandingCount > 0 ? "warning" : undefined}
+        />
+      </div>
+
       <ReportFiltersBar
         search={{
           value: search,
