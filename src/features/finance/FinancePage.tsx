@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import {
   ChevronLeft,
   ChevronRight,
@@ -86,9 +86,14 @@ export function FinancePage() {
     [rows, page],
   )
   // Reset to page 1 whenever filters change the result set
-  useMemo(() => {
+  useEffect(() => {
     setPage(1)
   }, [filters])
+
+  // Clamp page if rows shrink below the current page
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages)
+  }, [page, totalPages])
 
   // First-load skeleton
   useMemo(() => {
@@ -205,7 +210,7 @@ export function FinancePage() {
         title="Finance"
         description="Manage student fees, visitor payments, outstanding balances and financial records across all hostels."
         actions={
-          <>
+          <div className="flex items-center gap-2">
             <Button
               variant="outline"
               onClick={() => {
@@ -223,7 +228,7 @@ export function FinancePage() {
               <Plus className="h-3.5 w-3.5" />
               Record Payment
             </Button>
-          </>
+          </div>
         }
       />
 
