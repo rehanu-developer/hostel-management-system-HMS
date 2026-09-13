@@ -1,8 +1,7 @@
 import { useMemo, useState } from "react"
 import {
-  ChevronDown,
+  Eye,
   Plus,
-  Receipt,
   Search,
   Wallet,
 } from "lucide-react"
@@ -29,11 +28,10 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useDataStore } from "@/stores/dataStore"
 import {
@@ -434,44 +432,82 @@ function RowActions({
   onOpenStudentFinance: () => void
 }) {
   const navigate = useNavigate()
+  const btnBase =
+    "inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 rounded-full text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-          aria-label="Row actions"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <ChevronDown className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuItem onSelect={onView}>
-          <Receipt className="text-[var(--muted-foreground)]" />
-          View Payment
-        </DropdownMenuItem>
-        {!isIndependent && (
-          <DropdownMenuItem onSelect={onOpenStudentFinance}>
-            <Wallet className="text-[var(--muted-foreground)]" />
-            Student Finance
-          </DropdownMenuItem>
-        )}
-        {!isIndependent && (
-          <DropdownMenuItem
-            onSelect={() => navigate(`/students/${row.studentId}`)}
+    <div className="flex items-center justify-end gap-1.5">
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            aria-label="View payment"
+            onClick={(e) => {
+              e.stopPropagation()
+              onView()
+            }}
+            className={`${btnBase} bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--foreground)]`}
           >
-            <Search className="text-[var(--muted-foreground)]" />
-            View Student
-          </DropdownMenuItem>
-        )}
-        <DropdownMenuItem onSelect={onRecord}>
-          <Plus className="text-[var(--muted-foreground)]" />
-          Record Payment
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+            <Eye className="h-3.5 w-3.5" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>View payment</TooltipContent>
+      </Tooltip>
+
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            aria-label="Record payment"
+            onClick={(e) => {
+              e.stopPropagation()
+              onRecord()
+            }}
+            className={`${btnBase} bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--foreground)]`}
+          >
+            <Plus className="h-3.5 w-3.5" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>Record payment</TooltipContent>
+      </Tooltip>
+
+      {!isIndependent && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              aria-label="Open student finance"
+              onClick={(e) => {
+                e.stopPropagation()
+                onOpenStudentFinance()
+              }}
+              className={`${btnBase} bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--foreground)]`}
+            >
+              <Wallet className="h-3.5 w-3.5" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>Student finance</TooltipContent>
+        </Tooltip>
+      )}
+
+      {!isIndependent && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              aria-label="View student profile"
+              onClick={(e) => {
+                e.stopPropagation()
+                navigate(`/students/${row.studentId}`)
+              }}
+              className={`${btnBase} bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--foreground)]`}
+            >
+              <Search className="h-3.5 w-3.5" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>View student</TooltipContent>
+        </Tooltip>
+      )}
+    </div>
   )
 }
 

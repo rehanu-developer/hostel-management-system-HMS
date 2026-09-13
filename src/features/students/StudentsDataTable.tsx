@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import {
-  MoreHorizontal,
   Eye,
   Pencil,
   Wallet,
@@ -375,95 +374,75 @@ function RowActionsMenu({
   const navigate = useNavigate()
 
   return (
-    <DropdownMenu>
+    <div className="flex items-center justify-end gap-1.5">
       <Tooltip>
         <TooltipTrigger asChild>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-10 w-10 rounded-full text-[var(--muted-foreground)] hover:text-[var(--foreground)] sm:h-8 sm:w-8"
-              aria-label={`Actions for ${student.name}`}
-            >
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-        </TooltipTrigger>
-        <TooltipContent>Row actions</TooltipContent>
-      </Tooltip>
-      <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuLabel className="text-[11px] font-medium uppercase tracking-wider">
-          Actions
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onSelect={(e) => {
-            e.preventDefault()
-            navigate(`/students/${student.id}`)
-          }}
-        >
-          <IconBubble>
+          <button
+            type="button"
+            aria-label={`View ${student.name}`}
+            onClick={(e) => {
+              e.stopPropagation()
+              navigate(`/students/${student.id}`)
+            }}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[var(--muted)] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+          >
             <Eye className="h-3.5 w-3.5" />
-          </IconBubble>
-          View profile
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onSelect={(e) => {
-            e.preventDefault()
-            onEdit(student)
-          }}
-        >
-          <IconBubble>
-            <Pencil className="h-3.5 w-3.5" />
-          </IconBubble>
-          Edit student
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onSelect={(e) => {
-            e.preventDefault()
-            navigate(`/students/${student.id}#payments`)
-          }}
-        >
-          <IconBubble>
-            <Wallet className="h-3.5 w-3.5" />
-          </IconBubble>
-          View payments
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onSelect={(e) => {
-            e.preventDefault()
-            onDelete(student)
-          }}
-          className="text-[var(--destructive-soft-foreground)] focus:bg-[var(--destructive-soft)] focus:text-[var(--destructive-soft-foreground)]"
-        >
-          <IconBubble variant="danger">
-            <Trash2 className="h-3.5 w-3.5" />
-          </IconBubble>
-          Delete student
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  )
-}
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>View profile</TooltipContent>
+      </Tooltip>
 
-function IconBubble({
-  children,
-  variant = "neutral",
-}: {
-  children: React.ReactNode
-  variant?: "neutral" | "danger"
-}) {
-  const tone =
-    variant === "danger"
-      ? "bg-[var(--destructive-soft)] text-[var(--destructive-soft-foreground)]"
-      : "bg-[var(--muted)] text-[var(--muted-foreground)]"
-  return (
-    <span
-      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${tone}`}
-    >
-      {children}
-    </span>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            aria-label={`Edit ${student.name}`}
+            onClick={(e) => {
+              e.stopPropagation()
+              onEdit(student)
+            }}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[var(--muted)] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>Edit student</TooltipContent>
+      </Tooltip>
+
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            aria-label={`View payments for ${student.name}`}
+            onClick={(e) => {
+              e.stopPropagation()
+              navigate(`/students/${student.id}#payments`)
+            }}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[var(--muted)] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+          >
+            <Wallet className="h-3.5 w-3.5" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>View payments</TooltipContent>
+      </Tooltip>
+
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            aria-label={`Delete ${student.name}`}
+            onClick={(e) => {
+              e.stopPropagation()
+              onDelete(student)
+            }}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[var(--destructive-soft)] text-[var(--destructive-soft-foreground)] transition-colors hover:bg-[var(--destructive-soft)]/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>Delete student</TooltipContent>
+      </Tooltip>
+    </div>
   )
 }
 
