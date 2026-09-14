@@ -77,23 +77,9 @@ export function FinancePage() {
   >(null)
   const [recordOpen, setRecordOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  // Pagination
+  // Pagination state (slicing happens below, after `rows` is computed)
   const PAGE_SIZE = 10
   const [page, setPage] = useState(1)
-  const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE))
-  const pageRows = useMemo(
-    () => rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
-    [rows, page],
-  )
-  // Reset to page 1 whenever filters change the result set
-  useEffect(() => {
-    setPage(1)
-  }, [filters])
-
-  // Clamp page if rows shrink below the current page
-  useEffect(() => {
-    if (page > totalPages) setPage(totalPages)
-  }, [page, totalPages])
 
   // First-load skeleton
   useMemo(() => {
@@ -125,6 +111,21 @@ export function FinancePage() {
     () => applyFinanceFilters(allRows, filters, studentById),
     [allRows, filters, studentById],
   )
+
+  // Pagination (depends on `rows`)
+  const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE))
+  const pageRows = useMemo(
+    () => rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [rows, page],
+  )
+  // Reset to page 1 whenever filters change the result set
+  useEffect(() => {
+    setPage(1)
+  }, [filters])
+  // Clamp page if rows shrink below the current page
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages)
+  }, [page, totalPages])
 
   // Scope payments by the same filters (for "expected revenue" + accurate collected totals)
   const paymentsForExpected = useMemo(() => {
