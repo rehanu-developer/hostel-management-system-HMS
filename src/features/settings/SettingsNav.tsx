@@ -13,6 +13,7 @@ const items: { id: SettingsSection; label: string }[] = [
   { id: "fee", label: "Fee Settings" },
   { id: "preferences", label: "System Preferences" },
   { id: "data", label: "Data & Maintenance" },
+  { id: "qr", label: "Payment QR" },
 ]
 
 export function SettingsNav({ section, onChange, className }: SettingsNavProps) {

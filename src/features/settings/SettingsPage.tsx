@@ -16,6 +16,7 @@ import { FeeSettings } from "./FeeSettings"
 import { SystemPreferencesSettings } from "./SystemPreferencesSettings"
 import { DataMaintenanceSettings } from "./DataMaintenanceSettings"
 import { UnsavedChangesDialog } from "./UnsavedChangesDialog"
+import { QrSettings } from "./QrSettings"
 import type { Settings } from "@/types"
 
 export type SettingsSection =
@@ -24,6 +25,7 @@ export type SettingsSection =
   | "fee"
   | "preferences"
   | "data"
+  | "qr"
 
 export function SettingsPage() {
   const settings = useDataStore((s) => s.settings)
@@ -92,6 +94,7 @@ export function SettingsPage() {
               <SelectItem value="fee">Fee Settings</SelectItem>
               <SelectItem value="preferences">System Preferences</SelectItem>
               <SelectItem value="data">Data & Maintenance</SelectItem>
+              <SelectItem value="qr">Payment QR</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -151,6 +154,7 @@ export function SettingsPage() {
             {section === "data" && (
               <DataMaintenanceSettings onReload={() => window.location.reload()} />
             )}
+            {section === "qr" && <QrSettings />}
           </div>
         </div>
       </div>
