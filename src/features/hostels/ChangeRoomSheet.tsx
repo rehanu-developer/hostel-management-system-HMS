@@ -62,14 +62,6 @@ export function ChangeRoomSheet({
     }
   }, [open, student])
 
-  // Pre-fill agreed price with the target room's monthly price whenever the
-  // room changes. Admin can edit the value if the negotiated price differs.
-  useEffect(() => {
-    if (targetRoom) {
-      setAgreedPriceInput(String(targetRoom.monthlyPrice))
-    }
-  }, [targetRoom])
-
   const currentHostel = hostels.find((h) => h.id === student?.hostelId)
   const currentRoom = rooms.find((r) => r.id === student?.roomId)
 
@@ -79,6 +71,14 @@ export function ChangeRoomSheet({
   )
 
   const targetRoom = rooms.find((r) => r.id === targetRoomId)
+
+  // Pre-fill agreed price with the target room's monthly price whenever the
+  // room changes. Admin can edit the value if the negotiated price differs.
+  useEffect(() => {
+    if (targetRoom) {
+      setAgreedPriceInput(String(targetRoom.monthlyPrice))
+    }
+  }, [targetRoom])
 
   const vacantBeds = useMemo(() => {
     if (!targetRoom) return []
