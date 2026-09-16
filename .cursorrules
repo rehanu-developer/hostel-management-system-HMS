@@ -1,0 +1,91 @@
+# Cursor / AI assistant rules for Nomads Boys Hostel — Manager
+
+## Stack
+- React 19 + Vite + TypeScript + Tailwind v4
+- shadcn/ui (Radix primitives) + lucide-react icons
+- Zustand for state, React Hook Form + Zod for forms
+- Recharts for charts, Sonner for toasts, date-fns for dates
+- jsPDF + xlsx for report exports
+
+## Branch workflow — HARD RULE
+- The default working branch is `feature/finance-section`. **Never commit to `main`.**
+- Branch naming: `feature/<short>`, `fix/<short>`, `chore/<short>`, `experiment/<short>`.
+- Push the feature branch to GitHub, never to `main`.
+- Wait for explicit user instruction ("merge to main" / "deploy to main") before merging.
+- Verify the deployed URL renders without errors before claiming work is done.
+
+## Naming (USER-FACING TEXT)
+- "Student" → "Nomad" (singular) / "Nomads" (plural)
+- "Visitor" → "Guest" / "Guests"
+- The TypeScript types are still `Student`, `Visitor` (and so are the
+  route paths `/students`, `/visitors`, and the data fields `studentId`,
+  `visitorId`). Don't rename those — too much blast radius, no UX benefit.
+
+## UI conventions
+- **Reuse existing primitives** — shadcn components in `src/components/ui/`.
+  Don't pull in new UI libraries.
+- **No gradients, glassmorphism, decorative illustrations, excessive animations.**
+- **Design system**: Poppins (headings) + Inter (body); neutral palette with one
+  dark accent. Soft pill badges.
+- **PageHeader** is the standard top-of-page header (title + description +
+  optional actions). The actions prop is a single ReactNode — wrap multiple
+  buttons in a `<div className="flex items-center gap-2">`.
+- **Form sheets** (`*Sheet.tsx`) use the shadcn Sheet primitive. Forms use
+  react-hook-form + zod resolver, with `<FormField>` + `<FormItem>` +
+  `<FormLabel>` (props `required` / `optional`) + `<FormControl>` +
+  `<FormMessage>`.
+- **Section headings inside forms** (`<h3>`) use
+  `font-display text-base font-semibold tracking-tight` — never blend them
+  with input labels (`text-sm font-medium`).
+
+## Common bug pattern — TEMPORAL DEAD ZONE
+When you compute a derived value, **declare it BEFORE any useEffect that
+references it.** Reading a `const` before its declaration throws
+`Cannot access 'X' before initialization` and takes the whole React tree
+down (blank page). The `FinancePage` and `ChangeRoomSheet` have hit this
+twice — keep new code declaring first, using second.
+
+## Verification before "done"
+1. `node node_modules/typescript/bin/tsc --noEmit` → no errors
+2. `node node_modules/vite/bin/vite.js build` → clean
+3. **Playwright headless render of the affected route** → no `pageerror`,
+   root has content. HTTP 200 alone is NOT enough.
+4. If it's a CRUD flow, click through the primary happy path.
+
+## Useful commands
+```bash
+# type-check only
+npx tsc --noEmit
+
+# production build
+npx vite build
+
+# git: always feature branch
+git checkout -b feature/<short-name>
+git add -A
+git commit -m "feat(scope): summary"
+git push -u origin feature/<short-name>
+```
+
+When the user reports a blank page, default to:
+1. Spin up the dev server (`npx vite --port 5182 --host 0.0.0.0`)
+2. Use Playwright headless to navigate to the affected route
+3. Listen for `page.on('pageerror', ...)` — almost always reveals the cause
+
+## Mock data
+- All data in `src/lib/mock/data.ts`. State in `src/stores/dataStore.ts`.
+- Three hostels: A, C, D (all at "G-12 near SLS School").
+- Nomad codes `NOM-####`. Guests have no fixed codes.
+- Independent guest = walk-in, self-pay. Linked guest = assigned to a nomad
+  (nomad is financially responsible).
+
+## Public assets
+- `public/nomads-favicon.svg` — round house logo (favicon)
+- `public/nomads-logo.svg` — same, used in the sidebar header
+
+## Tabs in Reports (current)
+Overview · Occupancy · Nomads · Guests
+(Financial tab was removed in 2026-09 — Finance has its own page.)
+
+## Sidebar nav (current order)
+Dashboard · Nomads · Hostels · Guests · Finance · Reports · Settings
